@@ -19,21 +19,23 @@ const upload = multer({
 });
 
 const apiRoute = createRouter()
-  .use(upload.single('video'))
+  .use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]))
   .post((req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+    const { title, description, category, privacy } = req.body;
+    const video = req.files.video[0];
+    const thumbnail = req.files.thumbnail[0];
+
+    const videoData = {
+        filename: video.originalname,
+        title,
+        description,
+        category,
+        thumbnail: thumbnail.originalname,
+        privacy
     }
     res.status(200).json({ message: 'Video uploaded successfully', filename: req.file.originalname });
   })
-  .handler({
-    onError(error, req, res) {
-      res.status(501).json({ error: `Sorry, something went wrong! ${error.message}` });
-    },
-    onNoMatch(req, res) {
-      res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-    },
-  });
+  .handler();
 
 export default apiRoute;
 

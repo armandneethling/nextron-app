@@ -42,10 +42,21 @@ export default function HomePage() {
     <React.Fragment>
       <Header />
       <div>
-        <h1>Uploaded Video</h1>
+        <h1>Uploaded Videos</h1>
         {videos.length > 0 ? (
           videos.map((video, index) => (
-            <VideoDisplay key={index} videoSrc={video} onDelete={handleDelete}/>
+            <div key={index}>
+              <VideoDisplay key={index} videoSrc={video} onDelete={handleDelete}/>
+              <div>
+                <h2>{video.title}</h2>
+                <p>{video.description}</p>
+                <p>Category: {video.category}</p>
+                <p>Privacy: {video.privacy}</p>
+                {video.thumbnail && (
+                  <Image src={`/videos/${video.thumbnail}`} alt="Thumbnail" width={200} height={150} />
+                )}
+              </div>
+            </div>
           ))
         ) : (
           <p>No video uploaded</p>

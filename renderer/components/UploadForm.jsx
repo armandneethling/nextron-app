@@ -3,6 +3,11 @@ import styles from '../styles/UploadForm.module.css'
 
 function UploadForm({ onUpload}) {
     const [video, setVideo] = useState(null)
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [category, setCategory] = useState('')
+    const [thumbnail, setThumbnail] = useState(null)
+    const [privacy, setPrivacy] = useState('public')
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
 
@@ -17,6 +22,17 @@ function UploadForm({ onUpload}) {
         }
     }
 
+    const handleThumbnailChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            setThumbnail(file);
+            setError('');
+        } else {
+            setThumbnail(null);
+            setError('Please select an image file');
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (video) {
@@ -24,6 +40,11 @@ function UploadForm({ onUpload}) {
                 console.log('Video uploaded', video)
                 const formData = new FormData()
                 formData.append('video', video)
+                formData.append('title', title)
+                formData.append('description', description)
+                formData.append('category', category)
+                formData.append('thumbnail', thumbnail)
+                formData.append('privacy', privacy)
 
                 const response = await fetch('/api/upload', {
                     method: 'POST',
@@ -48,7 +69,30 @@ function UploadForm({ onUpload}) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className='{styles.form}'>
+        <form onSubmit={handleSubmit} className={styles.form}>
+            <label>
+                Title:
+                <input type='text' value={title} onChange={(e) => setTitle(e.target.value)} />
+            </label>
+            <label>
+                Description:
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+            </label>
+            <label>
+                Category:
+                <input type='text' value={category} onChange={(e) => setCategory(e.target.value)} />
+            </label>
+            <label>
+                Thumbnail:
+                <input type='file' accept='image/*' onChange={handleThumbnailChange} />
+            </label>
+            <label>
+                Privacy:
+                <select value={privacy} onChange={(e) => setPrivacy(e.target.value)}>
+                    <option value='public'>Public</option>
+                    <option value='private'>Private</option>
+                </select>
+            </label>
             <label>
                 Upload a video:
                 <input type='file' accept='video/*' onChange={handleVideoChange} />
