@@ -25,11 +25,11 @@ export default function HomePage() {
 
   const handleDelete = async (video) => {
     try {
-      const response = await fetch(`/api/deleteVideos?filename=${video}`, {
+      const response = await fetch(`/api/deleteVideo?filename=${video}`, {
         method: 'DELETE',
       });
       if (response.ok) {
-        setVideos(videos.filter(v => v !== video));
+        setVideos(videos.filter(v => v.filename !== video.filename));
       } else {
         console.error('Failed to delete video');
       }
@@ -46,7 +46,7 @@ export default function HomePage() {
         {videos.length > 0 ? (
           videos.map((video, index) => (
             <div key={index}>
-              <VideoDisplay key={index} videoSrc={video} onDelete={handleDelete}/>
+              <VideoDisplay key={index} videoSrc={video.filename} onDelete={handleDelete}/>
               <div>
                 <h2>{video.title}</h2>
                 <p>{video.description}</p>

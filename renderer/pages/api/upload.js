@@ -33,7 +33,7 @@ const apiRoute = createRouter()
         thumbnail: thumbnail.originalname,
         privacy
     }
-    res.status(200).json({ message: 'Video uploaded successfully', filename: req.file.originalname });
+    res.status(200).json({ message: 'Video uploaded successfully', video: videoData });
   })
   .handler();
 
