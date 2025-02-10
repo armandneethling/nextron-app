@@ -1,12 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import '../styles/global.css';
 
 function Header() {
   return (
     <nav>
       <Link href="/home">Home</Link>
-      <Link href="/next">About</Link>
+      <Link href="/upload">Upload a Video</Link>
     </nav>
   );
 }

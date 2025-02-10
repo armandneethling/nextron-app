@@ -1,37 +1,55 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Header from '../components/Header'
-import '../styles/global.css';
+import VideoDisplay from '../components/VideoDisplay'
 
 export default function HomePage() {
-  const [message, setMessage] = React.useState('No message found')
+  const [videos, setVideos] = useState([])
 
-  React.useEffect(() => {
-    window.ipc.on('message', (message) => {
-      setMessage(message)
-    })
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch('/api/listVideos');
+        const result = await response.json();
+        if (response.ok && Array.isArray(result.videos)) {
+          setVideos(result.videos);
+        } else {
+          console.error('Unexpected response format', result);
+        }
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
+    };
+    fetchVideos();
   }, [])
+
+  const handleDelete = async (video) => {
+    try {
+      const response = await fetch(`/api/deleteVideos?filename=${video}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setVideos(videos.filter(v => v !== video));
+      } else {
+        console.error('Failed to delete video');
+      }
+    } catch (error) {
+      console.error('Error deleting video:', error);
+    }
+  }
 
   return (
     <React.Fragment>
       <Header />
       <div>
-        <Image
-          src="/images/logo.png"
-          alt="Logo image"
-          width={256}
-          height={256}
-        />
-      </div>
-      <div>
-        <button
-          onClick={() => {
-            window.ipc.send('message', 'Hello')
-          }}
-        >
-          Test IPC
-        </button>
-        <p>{message}</p>
+        <h1>Uploaded Video</h1>
+        {videos.length > 0 ? (
+          videos.map((video, index) => (
+            <VideoDisplay key={index} videoSrc={video} onDelete={handleDelete}/>
+          ))
+        ) : (
+          <p>No video uploaded</p>
+        )}
       </div>
     </React.Fragment>
   )
