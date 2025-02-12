@@ -27,6 +27,12 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`
+  }
+
   const handleDelete = async (id) => {
     const confirmed = window.confirm('Are you sure you want to delete this video?');
     if (!confirmed) return;
@@ -117,6 +123,7 @@ export default function HomePage() {
             <div className={styles.modalInfo}>
               <p>{currentVideo.description}</p>
               <p>Category: {currentVideo.category}</p>
+              <p>Duration: {formatDuration(currentVideo.duration)}</p>
               <p>Privacy: {currentVideo.privacy}</p>
             </div>
           </div>

@@ -6,6 +6,7 @@ function UploadForm({ onUpload }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const categories = ['Education', 'Entertainment', 'Music', 'Sports', 'Technology', 'Other'];
   const [thumbnail, setThumbnail] = useState(null);
   const [privacy, setPrivacy] = useState('public');
   const [error, setError] = useState('');
@@ -101,12 +102,21 @@ function UploadForm({ onUpload }) {
       </label>
       <label htmlFor='category'>
         <span>Category:</span>
-        <input
+        <select
           id='category'
-          type='text'
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-        />
+          required
+        >
+          <option value='' disabled>
+            Select a category
+          </option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
       </label>
       <label htmlFor='thumbnail'>
         <span>Thumbnail:</span>

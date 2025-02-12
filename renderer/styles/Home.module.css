@@ -69,6 +69,13 @@
     text-align: center;
     color: #333;
   }
+
+  .videoDuration {
+    font-size: 14px;
+    text-align: center;
+    color: #666;
+    margin-top: 4px;
+  }
   
   /* Modal styles */
   .modal {
