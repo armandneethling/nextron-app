@@ -1,25 +1,91 @@
+/* Container styling for the form */
 .form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for each label and its input */
+.form label {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.form label span {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Text input fields */
+.form input[type='text'],
+.form input[type='file'],
+.form select,
+.form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Textarea styling */
+.form textarea {
+  resize: vertical;
+  height: 100px;
+}
+
+/* Display selected file names */
+.form p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Submit button */
+.form button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+  background-color: #005bb5;
+}
+
+.form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Error message styling */
+.error {
+  color: #ff4d4f;
+  margin-top: 8px;
+}
+
+/* Success message styling */
+.message {
+  color: #52c41a;
+  margin-top: 8px;
+}
+
+/* Responsive media queries */
+@media (max-width: 600px) {
+  .form {
+    padding: 16px;
   }
-  
-  .form label {
-    margin-bottom: 10px;
-  }
-  
-  .form button {
-    padding: 10px 20px;
-    background-color: #0070f3;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .error {
-    color: red;
-    margin-top: 10px;
-  }
-  
+}

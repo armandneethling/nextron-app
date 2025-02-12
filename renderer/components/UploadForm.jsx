@@ -1,107 +1,153 @@
-import React, { useState } from 'react'
-import styles from '../styles/UploadForm.module.css'
+import React, { useState } from 'react';
+import styles from '../styles/UploadForm.module.css';
 
-function UploadForm({ onUpload}) {
-    const [video, setVideo] = useState(null)
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [category, setCategory] = useState('')
-    const [thumbnail, setThumbnail] = useState(null)
-    const [privacy, setPrivacy] = useState('public')
-    const [error, setError] = useState('')
-    const [message, setMessage] = useState('')
+function UploadForm({ onUpload }) {
+  const [video, setVideo] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [thumbnail, setThumbnail] = useState(null);
+  const [privacy, setPrivacy] = useState('public');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
-    const handleVideoChange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('video/')) {
-            setVideo(file);
-            setError('');
-        } else {
-            setVideo(null);
-            setError('Please select a video file');
-        }
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('video/')) {
+      setVideo(file);
+      setError('');
+    } else {
+      setVideo(null);
+      setError('Please select a valid video file.');
     }
+  };
 
-    const handleThumbnailChange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            setThumbnail(file);
-            setError('');
-        } else {
-            setThumbnail(null);
-            setError('Please select an image file');
-        }
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setThumbnail(file);
+      setError('');
+    } else {
+      setThumbnail(null);
+      setError('Please select a valid image file.');
     }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        if (video) {
-            try {
-                console.log('Video uploaded', video)
-                const formData = new FormData()
-                formData.append('video', video)
-                formData.append('title', title)
-                formData.append('description', description)
-                formData.append('category', category)
-                formData.append('thumbnail', thumbnail)
-                formData.append('privacy', privacy)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (video && thumbnail) {
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('video', video);
+        formData.append('thumbnail', thumbnail);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('privacy', privacy);
 
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-                const result = await response.json();
-                if (response.ok) {
-                    setMessage('Video uploaded successfully');
-                    onUpload(result.filename);
-                } else {
-                    setMessage('Failed to upload video');
-                }
-            } catch (error) {
-                console.error('Error uploading video:', error);
-                setMessage('An error occured while upload the video');
-            }
+        const result = await response.json();
+        if (response.ok) {
+          setMessage('Video uploaded successfully!');
+          onUpload(result.video);
+
+          setVideo(null);
+          setThumbnail(null);
+          setTitle('');
+          setDescription('');
+          setCategory('');
+          setPrivacy('public');
         } else {
-            console.log('Please select a video file');
-            setMessage('Please select a video file');
+          setError('Failed to upload video.');
         }
+      } catch (error) {
+        console.error('Error uploading video:', error);
+        setError('An error occurred while uploading the video.');
+      } finally {
+        setIsUploading(false);
+      }
+    } else {
+      setError('Please select both a video file and a thumbnail.');
+      setMessage('');
     }
+  };
 
-    return (
-        <form onSubmit={handleSubmit} className={styles.form}>
-            <label>
-                Title:
-                <input type='text' value={title} onChange={(e) => setTitle(e.target.value)} />
-            </label>
-            <label>
-                Description:
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-            </label>
-            <label>
-                Category:
-                <input type='text' value={category} onChange={(e) => setCategory(e.target.value)} />
-            </label>
-            <label>
-                Thumbnail:
-                <input type='file' accept='image/*' onChange={handleThumbnailChange} />
-            </label>
-            <label>
-                Privacy:
-                <select value={privacy} onChange={(e) => setPrivacy(e.target.value)}>
-                    <option value='public'>Public</option>
-                    <option value='private'>Private</option>
-                </select>
-            </label>
-            <label>
-                Upload a video:
-                <input type='file' accept='video/*' onChange={handleVideoChange} />
-            </label>
-            {error && <p className={styles.error}>{error}</p>}
-            <button type='submit'>Upload</button>
-            {message && <p>{message}</p>}
-        </form>
-    );
+  return (
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <label htmlFor='title'>
+        <span>Title:</span>
+        <input
+          id='title'
+          type='text'
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+      </label>
+      <label htmlFor='description'>
+        <span>Description:</span>
+        <textarea
+          id='description'
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </label>
+      <label htmlFor='category'>
+        <span>Category:</span>
+        <input
+          id='category'
+          type='text'
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+      </label>
+      <label htmlFor='thumbnail'>
+        <span>Thumbnail:</span>
+        <input
+          id='thumbnail'
+          type='file'
+          accept='image/*'
+          onChange={handleThumbnailChange}
+          required
+        />
+        {thumbnail && <p>Selected file: {thumbnail.name}</p>}
+      </label>
+      <label htmlFor='privacy'>
+        <span>Privacy:</span>
+        <select
+          id='privacy'
+          value={privacy}
+          onChange={(e) => setPrivacy(e.target.value)}
+        >
+          <option value='public'>Public</option>
+          <option value='private'>Private</option>
+        </select>
+      </label>
+      <label htmlFor='video'>
+        <span>Upload a video:</span>
+        <input
+          id='video'
+          type='file'
+          accept='video/*'
+          onChange={handleVideoChange}
+          required
+        />
+        {video && <p>Selected file: {video.name}</p>}
+      </label>
+      {error && <p className={styles.error}>{error}</p>}
+      {message && <p className={styles.message}>{message}</p>}
+      <button type='submit' disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload'}
+      </button>
+    </form>
+  );
 }
 
 export default UploadForm;

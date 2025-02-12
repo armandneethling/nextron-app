@@ -1,24 +1,25 @@
 import { createRouter } from 'next-connect';
-import fs from 'fs';
 import path from 'path';
+import fs from 'fs';
 
 const apiRoute = createRouter()
   .get((req, res) => {
-    const videosDir = path.join(process.cwd(), 'renderer/public/videos');
-    fs.readdir(videosDir, (err, files) => {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to list videos' });
+    const dataFilePath = path.join(process.cwd(), 'data', 'videos.json');
+
+    // Read existing videos from the JSON file
+    let videos = [];
+    if (fs.existsSync(dataFilePath)) {
+      try {
+        const fileData = fs.readFileSync(dataFilePath);
+        videos = JSON.parse(fileData);
+      } catch (error) {
+        console.error('Error parsing videos.json:', error);
+        return res.status(500).json({ error: 'Failed to read video data' });
       }
-      const videoFiles = files.filter(file => file.endsWith('.mp4')); // Filter for video files
-      res.status(200).json({ videos: videoFiles });
-    });
+    }
+
+    res.status(200).json({ videos });
   })
   .handler();
 
 export default apiRoute;
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
