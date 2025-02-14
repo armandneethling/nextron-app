@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
 
 :root {
-  --primary-color: #007bff;
-  --secondary-color: #6c757d;
-  --background-color: #f8f9fa;
-  --text-color: #212529;
+  --primary-color: #6c757d;
+  --secondary-color: #adb5bd;
+  --background-color: #e9ecef;
+  --text-color: #495057;
 
   --success-color: #28a745;
   --danger-color: #dc3545;
@@ -26,10 +26,10 @@ body {
   padding: 0;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
 html {
   font-size: var(--font-size-base);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }

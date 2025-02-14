@@ -1,147 +1,157 @@
 /* Container for the grid of video cards */
 .container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    justify-items: center;
-    margin-top: 20px;
-  }
-  
-  /* Each video card */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjusted for better spacing */
+  gap: var(--spacing-unit);
+  padding: var(--spacing-unit);
+  margin-top: var(--spacing-unit);
+}
+
+/* Each video card */
+.videoCard {
+  background-color: #fff;
+  border: 1px solid var(--secondary-color);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.videoCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Wrapper for the thumbnail and delete button */
+.thumbnailWrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+  background-color: var(--secondary-color);
+}
+
+.thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+/* Delete button positioned over the thumbnail */
+.deleteButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.8); /* Muted red */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: rgba(220, 53, 69, 1); /* Slightly darker muted red */
+  opacity: 1;
+}
+
+/* Title displayed below the thumbnail */
+.videoTitle {
+  padding: var(--spacing-unit);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* Duration displayed below the title */
+.videoDuration {
+  font-size: var(--font-size-sm);
+  color: var(--secondary-color);
+  text-align: center;
+  margin-bottom: var(--spacing-unit);
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  outline: none;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  z-index: 1000;
+}
+
+.modalContent {
+  position: relative;
+  padding: var(--spacing-unit);
+}
+
+.modalTitle {
+  margin-bottom: var(--spacing-unit);
+  font-size: var(--font-size-lg);
+  color: var(--text-color);
+  text-align: center;
+}
+
+.modalInfo {
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+  margin-top: var(--spacing-unit);
+  text-align: center;
+}
+
+.modalInfo p {
+  margin: var(--spacing-unit) 0;
+}
+
+.modalVideo {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  max-height: 80vh;
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--spacing-unit);
+  right: var(--spacing-unit);
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 999;
+}
+
+/* Responsive media queries */
+@media (max-width: 600px) {
   .videoCard {
     width: 100%;
-    cursor: pointer;
   }
-  
-  /* Wrapper for the thumbnail and delete button */
-  .thumbnailWrapper {
-    position: relative;
-    width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    overflow: hidden;
-    border-radius: 8px;
-  }
-  
-  /* The video thumbnail image */
-  .thumbnail {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
-  }
-  
-  .thumbnail:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Delete button positioned over the thumbnail */
-  .deleteButton {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255, 77, 79, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 24px;
-    text-align: center;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-  }
-  
-  .deleteButton:hover {
-    background: rgba(255, 77, 79, 1);
-    opacity: 1;
-  }
-  
-  /* Title displayed below the thumbnail */
-  .videoTitle {
-    margin-top: 8px;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-  }
-
-  .videoDuration {
-    font-size: 14px;
-    text-align: center;
-    color: #666;
-    margin-top: 4px;
-  }
-  
-  /* Modal styles */
-  .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #000;
-    padding: 24px;
-    border-radius: 8px;
-    outline: none;
-    max-width: 90%;
-    max-height: 90%;
-    overflow: auto;
-    z-index: 1000;
-  }
-  
-  .modalContent {
-    position: relative;
-  }
-  
-  .modalTitle {
-    margin-bottom: 16px;
-    color: #fff;
-    text-align: center;
-  }
-  
-  .modalInfo {
-    margin-top: 16px;
-    color: #ccc;
-    text-align: center;
-  }
-  
-  .modalInfo p {
-    margin: 8px 0;
-  }
-  
-  .modalVideo {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-    max-height: 80vh;
-  }
-  
-  .closeButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 32px;
-    color: #fff;
-    cursor: pointer;
-    z-index: 10;
-  }
-  
-  .overlay {
-    background: rgba(0, 0, 0, 0.75);
-    z-index: 999;
-  }
-  
-  /* Responsive media queries */
-  @media (max-width: 600px) {
-    .videoCard {
-      width: 100%;
-    }
-  }
-  
+}
