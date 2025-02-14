@@ -1,3 +1,5 @@
+// pages/video/[id].jsx
+
 import React from 'react';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
@@ -12,12 +14,12 @@ const VideoDetail = ({ video }) => {
 
   if (!video) {
     return (
-      <div>
+      <React.Fragment>
         <Header />
         <div className={styles.container}>
           <p>Video not found.</p>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 
@@ -30,9 +32,10 @@ const VideoDetail = ({ video }) => {
           <source src={`/uploads/${video.filename}`} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <p className={styles.description}>{video.description}</p>
+        {video.description && <p className={styles.description}>{video.description}</p>}
         <p className={styles.info}>Category: {video.category}</p>
         <p className={styles.info}>Privacy: {video.privacy}</p>
+        <p className={styles.info}>Duration: {formatDuration(video.duration)}</p>
       </div>
     </React.Fragment>
   );
@@ -42,30 +45,26 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getVideo?id=${id}`);
-    const result = await response.json();
+    const res = await fetch(`http://localhost:3000/api/getVideo?id=${id}`);
+    const data = await res.json();
 
-    if (response.ok && result.video) {
-      return {
-        props: {
-          video: result.video,
-        },
-      };
+    if (res.ok) {
+      return { props: { video: data.video } };
     } else {
-      return {
-        props: {
-          video: null,
-        },
-      };
+      return { props: { video: null } };
     }
   } catch (error) {
     console.error('Error fetching video:', error);
-    return {
-      props: {
-        video: null,
-      },
-    };
+    return { props: { video: null } };
   }
 }
 
 export default VideoDetail;
+
+// Utility function to format duration
+const formatDuration = (seconds) => {
+  if (!seconds) return 'N/A';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+};
