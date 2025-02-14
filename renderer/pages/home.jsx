@@ -1,14 +1,13 @@
+// pages/home.jsx
+
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import styles from '../styles/Home.module.css';
-import Modal from 'react-modal';
-
-Modal.setAppElement('#__next');
+import { useRouter } from 'next/router';
 
 export default function HomePage() {
   const [videos, setVideos] = useState([]);
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -27,18 +26,12 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  const formatDuration = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`
-  }
-
   const handleDelete = async (id) => {
     const confirmed = window.confirm('Are you sure you want to delete this video?');
     if (!confirmed) return;
 
     try {
-      const response = await fetch('/api/deleteVideos', {
+      const response = await fetch('/api/deleteVideo', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -59,14 +52,8 @@ export default function HomePage() {
     }
   };
 
-  const openModal = (video) => {
-    setCurrentVideo(video);
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-    setCurrentVideo(null);
+  const handleVideoClick = (id) => {
+    router.push(`/video/${id}`);
   };
 
   return (
@@ -75,13 +62,16 @@ export default function HomePage() {
       <div className={styles.container}>
         {videos.length > 0 ? (
           videos.map((video) => (
-            <div key={video.id} className={styles.videoCard}>
+            <div
+              key={video.id}
+              className={styles.videoCard}
+              onClick={() => handleVideoClick(video.id)}
+            >
               <div className={styles.thumbnailWrapper}>
                 <img
                   src={`/uploads/${video.thumbnail}`}
                   alt="Thumbnail"
                   className={styles.thumbnail}
-                  onClick={() => openModal(video)}
                 />
                 <button
                   onClick={(e) => {
@@ -101,34 +91,6 @@ export default function HomePage() {
           <p>No videos uploaded</p>
         )}
       </div>
-
-      {currentVideo && (
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Video Modal"
-          className={styles.modal}
-          overlayClassName={styles.overlay}
-          shouldCloseOnOverlayClick={true}
-        >
-          <div className={styles.modalContent}>
-            <button onClick={closeModal} className={styles.closeButton}>
-              &times;
-            </button>
-            <h2 className={styles.modalTitle}>{currentVideo.title}</h2>
-            <video controls className={styles.modalVideo}>
-              <source src={`/uploads/${currentVideo.filename}`} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <div className={styles.modalInfo}>
-              <p>{currentVideo.description}</p>
-              <p>Category: {currentVideo.category}</p>
-              <p>Duration: {formatDuration(currentVideo.duration)}</p>
-              <p>Privacy: {currentVideo.privacy}</p>
-            </div>
-          </div>
-        </Modal>
-      )}
     </React.Fragment>
   );
 }

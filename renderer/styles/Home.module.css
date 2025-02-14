@@ -1,34 +1,48 @@
-/* Container for the grid of video cards */
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjusted for better spacing */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-unit);
-  padding: var(--spacing-unit);
-  margin-top: var(--spacing-unit);
+  padding: calc(var(--spacing-unit) * 2);
+  margin-top: calc(var(--spacing-unit) * 5);
 }
 
-/* Each video card */
 .videoCard {
-  background-color: #fff;
-  border: 1px solid var(--secondary-color);
-  border-radius: 8px;
+  background-color: var(--secondary-color);
+  border: none;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  color: var(--text-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .videoCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
-/* Wrapper for the thumbnail and delete button */
 .thumbnailWrapper {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
   overflow: hidden;
   background-color: var(--secondary-color);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.thumbnailWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.videoCard:hover .thumbnailWrapper::before {
+  opacity: 1;
 }
 
 .thumbnail {
@@ -38,38 +52,39 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 }
 
-.thumbnail:hover {
-  transform: scale(1.05);
+.videoCard:hover .thumbnail {
+  transform: scale(1.1);
 }
 
-/* Delete button positioned over the thumbnail */
 .deleteButton {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(220, 53, 69, 0.8); /* Muted red */
-  color: white;
+  top: 12px;
+  right: 12px;
+  background: var(--primary-color);
+  color: #fff;
   border: none;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 18px;
+  line-height: 32px;
   text-align: center;
-  opacity: 0.8;
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.deleteButton:hover {
-  background: rgba(220, 53, 69, 1); /* Slightly darker muted red */
+.videoCard:hover .deleteButton {
   opacity: 1;
 }
 
-/* Title displayed below the thumbnail */
+.deleteButton:hover {
+  background: var(--info-color);
+}
+
 .videoTitle {
   padding: var(--spacing-unit);
   font-size: var(--font-size-base);
@@ -78,80 +93,26 @@
   color: var(--text-color);
 }
 
-/* Duration displayed below the title */
+.videoTitle:hover {
+  color: var(--primary-color);
+}
+
 .videoDuration {
   font-size: var(--font-size-sm);
-  color: var(--secondary-color);
+  color: var(--info-color);
   text-align: center;
   margin-bottom: var(--spacing-unit);
 }
 
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  padding: var(--spacing-unit);
-  border-radius: 8px;
-  outline: none;
-  max-width: 90%;
-  max-height: 90%;
-  overflow: auto;
-  z-index: 1000;
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-unit);
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.modalContent {
-  position: relative;
-  padding: var(--spacing-unit);
-}
-
-.modalTitle {
-  margin-bottom: var(--spacing-unit);
-  font-size: var(--font-size-lg);
-  color: var(--text-color);
-  text-align: center;
-}
-
-.modalInfo {
-  color: var(--text-color);
-  font-size: var(--font-size-base);
-  margin-top: var(--spacing-unit);
-  text-align: center;
-}
-
-.modalInfo p {
-  margin: var(--spacing-unit) 0;
-}
-
-.modalVideo {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-  max-height: 80vh;
-}
-
-.closeButton {
-  position: absolute;
-  top: var(--spacing-unit);
-  right: var(--spacing-unit);
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-}
-
-.overlay {
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 999;
-}
-
-/* Responsive media queries */
-@media (max-width: 600px) {
-  .videoCard {
-    width: 100%;
+@media (max-width: 480px) {
+  .container {
+    grid-template-columns: 1fr;
   }
 }

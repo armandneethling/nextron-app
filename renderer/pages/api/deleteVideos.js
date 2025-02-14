@@ -1,63 +1,42 @@
-import { createRouter } from 'next-connect';
-import path from 'path';
+// pages/api/deleteVideo.js
+
 import fs from 'fs';
+import path from 'path';
+import initializeDatabase from '../../utils/initializeDatabase';
+import Video from '../../models/Video';
 
-const apiRoute = createRouter()
-  .delete((req, res) => {
+export default async function handler(req, res) {
+  if (req.method === 'DELETE') {
     const { id } = req.body;
-    const uploadDir = path.join(process.cwd(), 'renderer/public/uploads/');
-    const dataFilePath = path.join(process.cwd(), 'data', 'videos.json');
-
-    if (!id) {
-      return res.status(400).json({ error: 'Video ID is required' });
-    }
-
-    let videos = [];
-    if (fs.existsSync(dataFilePath)) {
-      try {
-        const fileData = fs.readFileSync(dataFilePath);
-        videos = JSON.parse(fileData);
-      } catch (error) {
-        console.error('Error parsing videos.json:', error);
-        return res.status(500).json({ error: 'Failed to read video data' });
-      }
-    }
-
-    const videoIndex = videos.findIndex((video) => video.id === id);
-    if (videoIndex === -1) {
-      return res.status(404).json({ error: 'Video not found' });
-    }
-
-    const [video] = videos.splice(videoIndex, 1);
-
-    const videoPath = path.join(uploadDir, video.filename);
-    if (fs.existsSync(videoPath)) {
-      fs.unlinkSync(videoPath);
-    } else {
-      console.warn(`Video file not found: ${videoPath}`);
-    }
-
-    const thumbnailPath = path.join(uploadDir, video.thumbnail);
-    if (fs.existsSync(thumbnailPath)) {
-      fs.unlinkSync(thumbnailPath);
-    } else {
-      console.warn(`Thumbnail file not found: ${thumbnailPath}`);
-    }
 
     try {
-      fs.writeFileSync(dataFilePath, JSON.stringify(videos, null, 2));
-      res.status(200).json({ message: 'Video deleted successfully' });
+      await initializeDatabase(); // Initialize DB connection
+
+      const video = await Video.findByPk(id);
+      if (video) {
+        await video.destroy();
+
+        // Delete video and thumbnail files from 'public/uploads/'
+        const videoPath = path.join(process.cwd(), 'public', 'uploads', video.filename);
+        const thumbnailPath = path.join(process.cwd(), 'public', 'uploads', video.thumbnail);
+
+        fs.unlink(videoPath, (err) => {
+          if (err) console.error('Error deleting video file:', err);
+        });
+
+        fs.unlink(thumbnailPath, (err) => {
+          if (err) console.error('Error deleting thumbnail file:', err);
+        });
+
+        res.status(200).json({ message: 'Video deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'Video not found' });
+      }
     } catch (error) {
-      console.error('Error writing to videos.json:', error);
-      res.status(500).json({ error: 'Failed to update video data' });
+      console.error('Error deleting video:', error);
+      res.status(500).json({ error: 'Error deleting video' });
     }
-  })
-  .handler();
-
-export default apiRoute;
-
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
+  } else {
+    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+  }
+}

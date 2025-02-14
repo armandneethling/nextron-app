@@ -1,78 +1,51 @@
-import { createRouter } from 'next-connect';
+// pages/api/upload.js
+
+import nextConnect from 'next-connect';
 import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
-import { getVideoDurationInSeconds } from 'get-video-duration';
+import initializeDatabase from '../../utils/initializeDatabase';
+import Video from '../../models/Video';
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = path.join(process.cwd(), 'renderer/public/uploads/');
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-      }
-      cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.originalname);
-    },
-  }),
+const upload = multer({ dest: 'public/uploads/' });
+
+const apiRoute = nextConnect();
+
+apiRoute.use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]));
+
+apiRoute.post(async (req, res) => {
+  await initializeDatabase(); // Initialize DB connection
+
+  const videoFile = req.files['video'][0];
+  const thumbnailFile = req.files['thumbnail'][0];
+
+  const videoId = uuidv4();
+
+  const newVideo = {
+    id: videoId,
+    filename: videoFile.filename,
+    thumbnail: thumbnailFile.filename,
+    title: req.body.title,
+    description: req.body.description,
+    category: req.body.category,
+    privacy: req.body.privacy,
+    duration: req.body.duration ? parseFloat(req.body.duration) : null,
+  };
+
+  try {
+    await Video.create(newVideo);
+    res.status(201).json({ video: newVideo });
+  } catch (error) {
+    console.error('Error saving video:', error);
+    res.status(500).json({ error: 'Error saving video' });
+  }
 });
-
-const apiRoute = createRouter()
-  .use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]))
-  .post(async (req, res) => {
-    const { title, description, category, privacy } = req.body;
-    const video = req.files.video[0];
-    const thumbnail = req.files.thumbnail[0];
-
-    const videoId = Date.now();
-    const uploadPath = path.join(process.cwd(), 'renderer/public/uploads/');
-    const videoPath = path.join(uploadPath, video.originalname);
-
-    try {
-      const duration = await getVideoDurationInSeconds(videoPath);
-
-      const videoData = {
-        id: videoId,
-        filename: video.originalname,
-        thumbnail: thumbnail.originalname,
-        title,
-        description,
-        category,
-        privacy,
-        duration,
-      };
-
-      const dataFilePath = path.join(process.cwd(), 'data', 'videos.json');
-
-      let videos = [];
-      if (fs.existsSync(dataFilePath)) {
-        try {
-          const fileData = fs.readFileSync(dataFilePath);
-          videos = JSON.parse(fileData);
-        } catch (error) {
-          console.error('Error parsing videos.json:', error);
-          return res.status(500).json({ error: 'Failed to read video data' });
-        }
-      }
-
-      videos.push(videoData);
-
-      fs.writeFileSync(dataFilePath, JSON.stringify(videos, null, 2));
-
-      res.status(200).json({ message: 'Video uploaded successfully', video: videoData });
-    } catch (error) {
-      console.error('Error processing video:', error);
-      res.status(500).json({ error: 'Failed to process video' });
-    }
-  })
-  .handler();
 
 export default apiRoute;
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Disallow body parsing, consume as stream
   },
 };

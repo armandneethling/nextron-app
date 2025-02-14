@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
 
 :root {
-  --primary-color: #6c757d;
-  --secondary-color: #adb5bd;
-  --background-color: #e9ecef;
-  --text-color: #495057;
+  --primary-color: #17a2b8;
+  --secondary-color: #6c757d;
+  --background-color: #343a40;
+  --text-color: #f8f9fa;
 
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #17a2b8;
+  --success-color: #218838;
+  --danger-color: #c82333;
+  --warning-color: #e0a800;
+  --info-color: #138496;
 
   --font-size-base: 16px;
   --font-size-lg: 1.25rem;
@@ -23,7 +23,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   margin: 0;
-  padding: 0;
+  padding-top: 60px;
 }
 
 html {
@@ -32,4 +32,10 @@ html {
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 90px;
+  }
 }

@@ -153,7 +153,11 @@ function UploadForm({ onUpload }) {
       </label>
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.message}>{message}</p>}
-      <button type='submit' disabled={isUploading}>
+      <button
+        type='submit'
+        className={styles.uploadButton}
+        disabled={isUploading}
+      >
         {isUploading ? 'Uploading...' : 'Upload'}
       </button>
     </form>
