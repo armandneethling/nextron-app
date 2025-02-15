@@ -9,7 +9,9 @@ const Video = defineVideoModel(sequelize);
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: path.join(process.cwd(), '../../public/uploads'),
+    destination: (req, file, cb) => {
+      cb(null, path.join(process.cwd(), 'renderer/public/uploads')); // Use the correct path
+    },
     filename: (req, file, cb) => {
       cb(null, `${uuidv4()}_${file.originalname}`);
     },

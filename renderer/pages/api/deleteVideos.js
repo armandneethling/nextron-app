@@ -14,8 +14,8 @@ export default async function handler(req, res) {
       if (video) {
         await video.destroy();
 
-        const videoPath = path.join(process.cwd(), 'public', 'uploads', video.filename);
-        const thumbnailPath = path.join(process.cwd(), 'public', 'uploads', video.thumbnail);
+        const videoPath = path.join(process.cwd(), 'renderer/public/uploads', video.filename);
+        const thumbnailPath = path.join(process.cwd(), 'renderer/public/uploads', video.thumbnail);
 
         fs.unlink(videoPath, (err) => {
           if (err) console.error('Error deleting video file:', err);

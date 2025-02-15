@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
-export default function defineVideoModel(sequelize) {
-  return sequelize.define(
+function defineVideoModel(sequelize) {
+  const Video = sequelize.define(
     'Video',
     {
       id: {
@@ -39,4 +39,8 @@ export default function defineVideoModel(sequelize) {
       freezeTableName: true,
     }
   );
+
+  return Video;
 }
+
+export default defineVideoModel;

@@ -68,7 +68,7 @@ export default function HomePage() {
             >
               <div className={styles.thumbnailWrapper}>
                 <img
-                  src={`/uploads/${video.thumbnail}`}
+                  src={`/uploads/${video.thumbnail}`}  // Update the path here
                   alt="Thumbnail"
                   className={styles.thumbnail}
                 />
