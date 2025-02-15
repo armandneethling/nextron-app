@@ -1,25 +1,44 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../utils/database';
 
-const Video = sequelize.define('Video', {
-  id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-  },
-  filename: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  thumbnail: DataTypes.STRING,
-  title: DataTypes.STRING,
-  description: DataTypes.TEXT,
-  category: DataTypes.STRING,
-  privacy: DataTypes.STRING,
-  duration: DataTypes.INTEGER,
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-});
+export default function defineVideoModel(sequelize) {
+  const Video = sequelize.define(
+    'Video',
+    {
+      id: {
+        type: DataTypes.STRING,
+        primaryKey: true,
+      },
+      filename: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      thumbnail: {
+        type: DataTypes.STRING,
+      },
+      title: {
+        type: DataTypes.STRING,
+      },
+      description: {
+        type: DataTypes.TEXT,
+      },
+      category: {
+        type: DataTypes.STRING,
+      },
+      privacy: {
+        type: DataTypes.STRING,
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      freezeTableName: true,
+    }
+  );
 
-export default Video;
+  return Video;
+}
