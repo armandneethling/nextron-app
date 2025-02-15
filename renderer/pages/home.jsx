@@ -10,7 +10,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('/api/listVideos');
+        const response = await fetch('/api/listVideos', { cache: 'no-store' });
         const result = await response.json();
         if (response.ok && Array.isArray(result.videos)) {
           setVideos(result.videos);

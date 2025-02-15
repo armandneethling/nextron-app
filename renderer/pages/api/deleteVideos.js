@@ -1,14 +1,16 @@
 import fs from 'fs';
 import path from 'path';
-import Video from '../../models/Video';
-import sequelize from '../../utils/database';
+import defineVideoModel from '../../models/Video';
+import { sequelize, dbInitialized } from '../../utils/database';
+
+const Video = defineVideoModel(sequelize);
 
 export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.body;
 
     try {
-      await sequelize.sync();
+      await dbInitialized;
       const video = await Video.findByPk(id);
 
       if (video) {
@@ -18,11 +20,17 @@ export default async function handler(req, res) {
         const thumbnailPath = path.join(process.cwd(), 'renderer/public/uploads', video.thumbnail);
 
         fs.unlink(videoPath, (err) => {
-          if (err) console.error('Error deleting video file:', err);
+          if (err) {
+            console.error('Error deleting video file:', err);
+            return res.status(500).json({ error: 'Error deleting video file' });
+          }
         });
 
         fs.unlink(thumbnailPath, (err) => {
-          if (err) console.error('Error deleting thumbnail file:', err);
+          if (err) {
+            console.error('Error deleting thumbnail file:', err);
+            return res.status(500).json({ error: 'Error deleting thumbnail file' });
+          }
         });
 
         res.status(200).json({ message: 'Video deleted successfully' });

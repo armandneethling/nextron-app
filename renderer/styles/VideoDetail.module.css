@@ -1,5 +1,3 @@
-/* styles/VideoDetail.module.css */
-
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -31,4 +29,11 @@
   font-size: var(--font-size-sm);
   color: var(--secondary-color);
   margin-bottom: var(--spacing-unit);
+}
+
+.thumbnail {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: var(--spacing-unit);
+  border-radius: 8px;
 }
