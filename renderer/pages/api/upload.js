@@ -2,18 +2,37 @@ import nextConnect from 'next-connect';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-import Video from '../../models/Video';
+import { sequelize, dbInitialized } from '../../utils/database';
+import defineVideoModel from '../../models/Video';
 
-const upload = multer({ dest: 'public/uploads/' });
+const Video = defineVideoModel(sequelize);
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: path.join(process.cwd(), '../../public/uploads'),
+    filename: (req, file, cb) => {
+      cb(null, `${uuidv4()}_${file.originalname}`);
+    },
+  }),
+});
 
 const apiRoute = nextConnect();
 
 apiRoute.use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]));
 
+apiRoute.use(async (req, res, next) => {
+  await dbInitialized;
+  next();
+});
+
 apiRoute.post(async (req, res) => {
   try {
-    const videoFile = req.files['video'][0];
-    const thumbnailFile = req.files['thumbnail'][0];
+    const videoFile = req.files['video'] ? req.files['video'][0] : null;
+    const thumbnailFile = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
+
+    if (!videoFile || !thumbnailFile) {
+      return res.status(400).json({ error: 'Video file and thumbnail are required.' });
+    }
 
     const videoId = uuidv4();
 
