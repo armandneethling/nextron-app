@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../utils/database'; // Default export
+import sequelize from '../utils/database';
 
 const Video = sequelize.define('Video', {
   id: {

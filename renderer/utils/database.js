@@ -1,17 +1,23 @@
 import { Sequelize } from 'sequelize';
 import path from 'path';
 
+const databasePath = path.resolve(__dirname, '..', '..', 'database.sqlite');
+
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.resolve(__dirname, '..', '..', 'database.sqlite'),
-  logging: false,
+  storage: databasePath,
+  logging: console.log,
 });
+
+import '../models/Video';
 
 export async function initializeDatabase() {
   try {
+    console.log('Initializing database...');
     await sequelize.authenticate();
-    await sequelize.sync(); // Synchronize models to the database
-    console.log('Database connected and models synchronized.');
+    console.log('Database authenticated.');
+    await sequelize.sync();
+    console.log('Database synchronized.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
