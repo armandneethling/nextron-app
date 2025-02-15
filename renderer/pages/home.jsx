@@ -1,5 +1,3 @@
-// pages/home.jsx
-
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import styles from '../styles/Home.module.css';
@@ -38,6 +36,7 @@ export default function HomePage() {
         },
         body: JSON.stringify({ id }),
       });
+
       const result = await response.json();
       if (response.ok) {
         setVideos(videos.filter((video) => video.id !== id));
@@ -57,7 +56,7 @@ export default function HomePage() {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Header />
       <div className={styles.container}>
         {videos.length > 0 ? (
@@ -91,6 +90,6 @@ export default function HomePage() {
           <p>No videos uploaded</p>
         )}
       </div>
-    </React.Fragment>
+    </>
   );
 }

@@ -1,22 +1,19 @@
-// pages/api/deleteVideo.js
-
 import fs from 'fs';
 import path from 'path';
-import initializeDatabase from '../../utils/initializeDatabase';
 import Video from '../../models/Video';
+import sequelize from '../../utils/database';
 
 export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.body;
 
     try {
-      await initializeDatabase(); // Initialize DB connection
-
+      await sequelize.sync();
       const video = await Video.findByPk(id);
+
       if (video) {
         await video.destroy();
 
-        // Delete video and thumbnail files from 'public/uploads/'
         const videoPath = path.join(process.cwd(), 'public', 'uploads', video.filename);
         const thumbnailPath = path.join(process.cwd(), 'public', 'uploads', video.thumbnail);
 

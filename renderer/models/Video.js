@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../utils/database'; // Default export
 
 const Video = sequelize.define('Video', {
   id: {
@@ -20,8 +20,6 @@ const Video = sequelize.define('Video', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-}, {
-
 });
 
-module.exports = Video;
+export default Video;

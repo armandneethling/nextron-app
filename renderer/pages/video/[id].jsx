@@ -1,30 +1,21 @@
-// pages/video/[id].jsx
-
 import React from 'react';
-import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import styles from '../../styles/VideoDetail.module.css';
 
 const VideoDetail = ({ video }) => {
-  const router = useRouter();
-
-  if (router.isFallback) {
-    return <div>Loading...</div>;
-  }
-
   if (!video) {
     return (
-      <React.Fragment>
+      <>
         <Header />
         <div className={styles.container}>
           <p>Video not found.</p>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 
   return (
-    <React.Fragment>
+    <>
       <Header />
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
@@ -35,9 +26,8 @@ const VideoDetail = ({ video }) => {
         {video.description && <p className={styles.description}>{video.description}</p>}
         <p className={styles.info}>Category: {video.category}</p>
         <p className={styles.info}>Privacy: {video.privacy}</p>
-        <p className={styles.info}>Duration: {formatDuration(video.duration)}</p>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -45,7 +35,7 @@ export async function getServerSideProps(context) {
   const { id } = context.params;
 
   try {
-    const res = await fetch(`http://localhost:3000/api/getVideo?id=${id}`);
+    const res = await fetch(`http://localhost:8888/api/getVideo?id=${id}`);
     const data = await res.json();
 
     if (res.ok) {
@@ -60,11 +50,3 @@ export async function getServerSideProps(context) {
 }
 
 export default VideoDetail;
-
-// Utility function to format duration
-const formatDuration = (seconds) => {
-  if (!seconds) return 'N/A';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-};

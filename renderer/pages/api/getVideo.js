@@ -1,15 +1,11 @@
-// pages/api/getVideo.js
-
-import initializeDatabase from '../../utils/initializeDatabase';
 import Video from '../../models/Video';
+import sequelize from '../../utils/database';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { id } = req.query;
-
     try {
-      await initializeDatabase(); // Initialize DB connection
-
+      await sequelize.sync(); // Ensure the database is synced
       const video = await Video.findByPk(id);
       if (video) {
         res.status(200).json({ video });
