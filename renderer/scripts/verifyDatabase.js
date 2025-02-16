@@ -4,7 +4,7 @@ const defineVideoModel = require('../models/Video');
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.resolve(process.cwd(), 'database.sqlite'),
+  storage: path.resolve('database.sqlite'),
   logging: console.log,
 });
 
@@ -14,7 +14,7 @@ async function verifyDatabase() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
 
-    const videoId = 'unique-video-id';
+    const videoId = '';
     const video = await Video.findByPk(videoId);
     if (video) {
       console.log('Fetched video data:', video);

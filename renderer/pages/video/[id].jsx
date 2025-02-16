@@ -10,13 +10,13 @@ const VideoDetails = () => {
 
   useEffect(() => {
     if (id) {
-      console.log('Fetching video with ID:', id); // Log the video ID
+      console.log('Fetching video with ID:', id);
       const fetchVideo = async () => {
         try {
-          const response = await fetch(`/api/getVideo?id=${id}`, { cache: 'no-store' });
+          const response = await fetch(`/api/getVideo?id=${encodeURIComponent(id)}`, { cache: 'no-store' });
           if (response.ok) {
             const result = await response.json();
-            console.log('Fetched video data:', result); // Log the fetched video data
+            console.log('Fetched video data:', result);
             setVideo(result);
           } else {
             const error = await response.text();
@@ -30,7 +30,7 @@ const VideoDetails = () => {
               privacy: 'Public',
               duration: 120,
               createdAt: new Date(),
-            }); // Set sample data if fetch fails
+            });
           }
         } catch (error) {
           console.error('Error fetching video:', error);
@@ -43,7 +43,7 @@ const VideoDetails = () => {
             privacy: 'Public',
             duration: 120,
             createdAt: new Date(),
-          }); // Set sample data if fetch fails
+          });
         }
       };
       fetchVideo();
