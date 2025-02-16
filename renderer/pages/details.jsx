@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
-import styles from '../styles/Home.module.css';
+import styles from '../styles/Details.module.css';
 import { useRouter } from 'next/router';
 
-export default function HomePage() {
+const DetailsPage = () => {
   const [videos, setVideos] = useState([]);
   const router = useRouter();
 
@@ -24,33 +24,6 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm('Are you sure you want to delete this video?');
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch('/api/deleteVideo', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setVideos(videos.filter((video) => video.id !== id));
-        alert('Video deleted successfully!');
-      } else {
-        console.error('Failed to delete video:', result.error);
-        alert('Failed to delete video.');
-      }
-    } catch (error) {
-      console.error('Error deleting video:', error);
-      alert('An error occurred while deleting the video.');
-    }
-  };
-
   const handleVideoClick = (id) => {
     router.push(`/video/${id}`);
   };
@@ -68,20 +41,10 @@ export default function HomePage() {
             >
               <div className={styles.thumbnailWrapper}>
                 <img
-                  src={`/uploads/${video.thumbnail}`}
+                  src={`/uploads/${video.thumbnail}`} // Ensure the path is correct
                   alt="Thumbnail"
                   className={styles.thumbnail}
                 />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(video.id);
-                  }}
-                  className={styles.deleteButton}
-                  title="Delete Video"
-                >
-                  &#10006;
-                </button>
               </div>
               <p className={styles.videoTitle}>{video.title}</p>
             </div>
@@ -92,4 +55,6 @@ export default function HomePage() {
       </div>
     </>
   );
-}
+};
+
+export default DetailsPage;
