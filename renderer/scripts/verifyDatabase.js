@@ -14,7 +14,7 @@ async function verifyDatabase() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
 
-    const videoId = '';
+    const videoId = 'e9d21da5-4cc9-4122-b91c-03361f07c015';
     const video = await Video.findByPk(videoId);
     if (video) {
       console.log('Fetched video data:', video);
