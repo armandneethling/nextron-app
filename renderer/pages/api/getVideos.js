@@ -1,6 +1,6 @@
 const nextConnect = require('next-connect');
-const { sequelize, dbInitialized } = require('../../utils/database'); // Correct path
-const defineVideoModel = require('../../models/Video'); // Correct path
+const { sequelize, dbInitialized } = require('../../utils/database');
+const defineVideoModel = require('../../models/Video');
 const Video = defineVideoModel(sequelize);
 
 const handler = nextConnect();
