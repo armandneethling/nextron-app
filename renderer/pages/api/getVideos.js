@@ -1,7 +1,6 @@
-import nextConnect from 'next-connect';
-import { sequelize, dbInitialized } from '../../utils/database';
-import defineVideoModel from '../../models/Video';
-
+const nextConnect = require('next-connect');
+const { sequelize, dbInitialized } = require('../../utils/database'); // Correct path
+const defineVideoModel = require('../../models/Video'); // Correct path
 const Video = defineVideoModel(sequelize);
 
 const handler = nextConnect();
@@ -36,4 +35,4 @@ handler.get(async (req, res) => {
   }
 });
 
-export default handler;
+module.exports = handler;

@@ -1,6 +1,13 @@
-const { sequelize } = require('../utils/database');
-const defineVideoModel = require('../models/Video');
+const { Sequelize } = require('sequelize');
+const { resolve } = require('path');
 
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: resolve(process.cwd(), 'database.sqlite'),
+  logging: console.log,
+});
+
+const defineVideoModel = require('../models/Video');
 const Video = defineVideoModel(sequelize);
 
 async function cleanDatabase() {
@@ -14,9 +21,10 @@ async function cleanDatabase() {
     console.error('Error cleaning the database:', error);
   } finally {
     await sequelize.close();
+    console.log('Database connection closed.');
   }
 }
 
 cleanDatabase();
 
-console.log('Database cleaned successfully.');
+console.log('Database cleaned.');

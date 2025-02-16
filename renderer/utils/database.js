@@ -1,6 +1,5 @@
-import { Sequelize } from 'sequelize';
-import path from 'path';
-import defineVideoModel from '../models/Video.js';
+const { Sequelize } = require('sequelize');
+const path = require('path');
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -13,9 +12,7 @@ async function initializeDatabase() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
 
-    defineVideoModel(sequelize);
-
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false });
     console.log('Database synchronized.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -24,4 +21,4 @@ async function initializeDatabase() {
 
 const dbInitialized = initializeDatabase();
 
-export { sequelize, dbInitialized };
+module.exports = { sequelize, dbInitialized };

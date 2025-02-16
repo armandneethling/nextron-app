@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+const { DataTypes } = require('sequelize');
 
 function defineVideoModel(sequelize) {
   const Video = sequelize.define(
@@ -43,4 +43,4 @@ function defineVideoModel(sequelize) {
   return Video;
 }
 
-export default defineVideoModel;
+module.exports = defineVideoModel;
