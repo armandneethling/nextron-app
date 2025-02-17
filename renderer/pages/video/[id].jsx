@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Header from '../../components/Header';
-import ReactStars from 'react-rating-stars-component';
+import ReactStarsWrapper from '../../components/ReactStarsWrapper';
 import styles from '../../styles/VideoDetail.module.css';
 
 const VideoDetails = () => {
@@ -208,13 +208,13 @@ const VideoDetails = () => {
             {new Date(video.createdAt).toLocaleString()}
           </p>
         </div>
-  
+
         <div className={styles.reviewsSection}>
           <h2 className={styles.reviewTitle}>Reviews</h2>
           {reviews.length > 0 ? (
             reviews.map((review) => (
               <div key={review.id} className={styles.review}>
-                <ReactStars
+                <ReactStarsWrapper
                   count={5}
                   value={review.rating}
                   edit={false}
@@ -239,7 +239,7 @@ const VideoDetails = () => {
                               : reply.userId === video.uploaderId
                               ? 'Uploader'
                               : 'User'}
-                            :
+                          :
                           </strong>{' '}
                           {reply.comment}
                         </p>
@@ -263,10 +263,10 @@ const VideoDetails = () => {
           ) : (
             <p>No reviews yet.</p>
           )}
-  
+
           <div className={styles.reviewForm}>
             <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
-            <ReactStars
+            <ReactStarsWrapper
               count={5}
               value={newRating}
               onChange={(rating) => setNewRating(rating)}
