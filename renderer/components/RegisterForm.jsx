@@ -4,6 +4,7 @@ import styles from '../styles/RegisterForm.module.css';
 const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('user');
 
   const handleRegister = async (e) => {
@@ -39,14 +40,23 @@ const RegisterForm = () => {
         required
         className={styles.input}
       />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-        className={styles.input}
-      />
+      <div className={styles.passwordContainer}>
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+          className={styles.input}
+        />
+        <button
+          type="button"
+          className={styles.viewPasswordButton}
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? "Hide" : "Show"}
+        </button>
+      </div>
       <button type="submit" className={styles.button}>Register</button>
     </form>
   );
