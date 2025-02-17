@@ -182,13 +182,17 @@ const VideoDetails = () => {
     }
   };
 
+  if (!video) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <>
       <Header />
       {notification.message && (
-        <p className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+        <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
           {notification.message}
-        </p>
+        </div>
       )}
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>

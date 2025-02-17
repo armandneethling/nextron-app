@@ -115,7 +115,9 @@ function UploadForm({ onUpload }) {
       setIsUploading(false);
       setTimeout(() => {
         setNotification({ message: '', type: '' });
-        titleInputRef.current.focus();
+        if (titleInputRef.current) {
+          titleInputRef.current.focus();
+        }
       }, 3000);
     }
   };
