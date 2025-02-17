@@ -1,6 +1,6 @@
 import nextConnect from 'next-connect';
-import { sequelize } from '../../utils/database';
-import defineUserModel from '../../../models/User';
+import { sequelize } from '../../../../utils/database';
+import defineUserModel from '../../../../models/User';
 
 const User = defineUserModel(sequelize);
 

@@ -1,8 +1,8 @@
 import nextConnect from 'next-connect';
-import { sequelize } from '../../utils/database';
-import defineVideoModel from '../../../models/Video';
-import defineReviewModel from '../../../models/Review';
-import defineReplyModel from '../../../models/Reply';
+import { sequelize } from '../../../../utils/database';
+import defineReviewModel from '../../../../models/Review';
+import defineReplyModel from '../../../../models/Reply';
+import defineVideoModel from '../../../../models/Video';
 
 const Review = defineReviewModel(sequelize);
 const Video = defineVideoModel(sequelize);
