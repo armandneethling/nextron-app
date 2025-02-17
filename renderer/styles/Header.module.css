@@ -42,6 +42,20 @@
   transform: scaleX(1);
 }
 
+.logoutButton {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.logoutButton:hover {
+  background-color: #e60000;
+}
+
 @media (max-width: 768px) {
   .nav {
     flex-direction: column;
@@ -51,6 +65,10 @@
   }
 
   .nav a {
+    margin: 0.5em 0;
+  }
+
+  .logoutButton {
     margin: 0.5em 0;
   }
 }

@@ -8,7 +8,10 @@ const sequelize = new Sequelize({
 });
 
 const defineVideoModel = require('../models/Video');
+const defineUserModel = require('../models/User');
+
 const Video = defineVideoModel(sequelize);
+const User = defineUserModel(sequelize);
 
 async function cleanDatabase() {
   try {
@@ -17,6 +20,14 @@ async function cleanDatabase() {
 
     await Video.destroy({ where: {}, truncate: true });
     console.log('All video entries have been deleted.');
+
+    await User.destroy({ where: {}, truncate: true });
+    console.log('All user entries have been deleted.');
+
+    await sequelize.drop();
+    await sequelize.sync();
+    console.log('All tables have been dropped and recreated.');
+
   } catch (error) {
     console.error('Error cleaning the database:', error);
   } finally {
