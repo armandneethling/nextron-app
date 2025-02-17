@@ -11,8 +11,6 @@ function Header() {
     const loggedInUser = localStorage.getItem('userId');
     if (loggedInUser) {
       setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
     }
   }, []);
 
