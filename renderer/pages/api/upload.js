@@ -2,10 +2,7 @@ import nextConnect from 'next-connect';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-import { sequelize, dbInitialized } from '../../utils/database';
-import defineVideoModel from '../../models/Video';
-
-const Video = defineVideoModel(sequelize);
+import { promises as fsPromises } from 'fs';
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -22,11 +19,6 @@ const apiRoute = nextConnect();
 
 apiRoute.use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]));
 
-apiRoute.use(async (req, res, next) => {
-  await dbInitialized;
-  next();
-});
-
 apiRoute.post(async (req, res) => {
   try {
     const videoFile = req.files['video'] ? req.files['video'][0] : null;
@@ -37,7 +29,6 @@ apiRoute.post(async (req, res) => {
     }
 
     const videoId = uuidv4();
-
     const newVideo = {
       id: videoId,
       filename: videoFile.filename,
@@ -47,9 +38,16 @@ apiRoute.post(async (req, res) => {
       category: req.body.category,
       privacy: req.body.privacy,
       duration: req.body.duration ? parseFloat(req.body.duration) : null,
+      createdAt: new Date().toISOString(),
     };
 
-    await Video.create(newVideo);
+    const filePath = path.resolve('./data/videos.json');
+    const data = await fsPromises.readFile(filePath, 'utf8');
+    const videos = JSON.parse(data);
+
+    videos.push(newVideo);
+    await fsPromises.writeFile(filePath, JSON.stringify(videos, null, 2));
+
     res.status(201).json({ video: newVideo });
   } catch (error) {
     console.error('Error saving video:', error);

@@ -13,7 +13,7 @@ const VideoDetails = () => {
       console.log('Fetching video with ID:', id);
       const fetchVideo = async () => {
         try {
-          const response = await fetch(`/api/getVideo?id=${encodeURIComponent(id)}`, { cache: 'no-store' });
+          const response = await fetch(`/api/getVideos?id=${id}`, { cache: 'no-store' });
           if (response.ok) {
             const result = await response.json();
             console.log('Fetched video data:', result);
@@ -59,7 +59,11 @@ const VideoDetails = () => {
       <Header />
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
-        <img src={`/uploads/${video.thumbnail}`} alt={`${video.title} thumbnail`} className={styles.thumbnail} />
+        <img
+          src={`/uploads/${video.thumbnail}`}
+          alt={`${video.title} thumbnail`}
+          className={styles.thumbnail}
+        />
         <video controls className={styles.videoPlayer}>
           <source src={`/uploads/${video.filename}`} type="video/mp4" />
           Your browser does not support the video tag.
@@ -68,7 +72,9 @@ const VideoDetails = () => {
         <p className={styles.info}>Category: {video.category}</p>
         <p className={styles.info}>Privacy: {video.privacy}</p>
         <p className={styles.info}>Duration: {video.duration} seconds</p>
-        <p className={styles.info}>Uploaded at: {new Date(video.createdAt).toLocaleString()}</p>
+        <p className={styles.info}>
+          Uploaded at: {new Date(video.createdAt).toLocaleString()}
+        </p>
       </div>
     </>
   );

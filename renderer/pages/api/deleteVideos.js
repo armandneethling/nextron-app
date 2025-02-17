@@ -1,23 +1,25 @@
 import fs from 'fs';
 import path from 'path';
-import defineVideoModel from '../../models/Video';
-import { sequelize, dbInitialized } from '../../utils/database';
-
-const Video = defineVideoModel(sequelize);
+import { promises as fsPromises } from 'fs';
 
 export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.body;
 
     try {
-      await dbInitialized;
-      const video = await Video.findByPk(id);
+      const filePath = path.resolve('./data/videos.json');
+      const data = await fsPromises.readFile(filePath, 'utf8');
+      const videos = JSON.parse(data);
 
-      if (video) {
-        await video.destroy();
+      const videoIndex = videos.findIndex(v => v.id === id);
+
+      if (videoIndex !== -1) {
+        const [video] = videos.splice(videoIndex, 1);
 
         const videoPath = path.join(process.cwd(), 'renderer/public/uploads', video.filename);
         const thumbnailPath = path.join(process.cwd(), 'renderer/public/uploads', video.thumbnail);
+
+        await fsPromises.writeFile(filePath, JSON.stringify(videos, null, 2));
 
         fs.unlink(videoPath, (err) => {
           if (err) {
@@ -33,15 +35,15 @@ export default async function handler(req, res) {
           }
         });
 
-        res.status(200).json({ message: 'Video deleted successfully' });
+        return res.status(200).json({ message: 'Video deleted successfully' });
       } else {
-        res.status(404).json({ error: 'Video not found' });
+        return res.status(404).json({ error: 'Video not found' });
       }
     } catch (error) {
       console.error('Error deleting video:', error);
-      res.status(500).json({ error: 'Error deleting video' });
+      return res.status(500).json({ error: 'Error deleting video' });
     }
   } else {
-    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+    return res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
   }
 }

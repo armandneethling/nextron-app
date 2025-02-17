@@ -11,8 +11,12 @@ export default function HomePage() {
     const fetchVideos = async () => {
       try {
         const response = await fetch('/api/listVideos', { cache: 'no-store' });
+        if (!response.ok) {
+          console.error('Failed to fetch videos:', response.statusText);
+          return;
+        }
         const result = await response.json();
-        if (response.ok && Array.isArray(result.videos)) {
+        if (Array.isArray(result.videos)) {
           setVideos(result.videos);
         } else {
           console.error('Unexpected response format', result);
@@ -29,7 +33,7 @@ export default function HomePage() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch('/api/deleteVideo', {
+      const response = await fetch('/api/deleteVideos', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
