@@ -199,6 +199,11 @@ function UploadForm({ onUpload }) {
 
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.message}>{message}</p>}
+
+      <div className={styles.uploadInstructions}>
+        <p>For best results, please upload videos and images with a 16:9 aspect ratio.</p>
+      </div>
+
       <button
         type="submit"
         className={styles.uploadButton}

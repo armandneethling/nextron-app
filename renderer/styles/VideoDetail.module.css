@@ -13,13 +13,6 @@
   margin-bottom: var(--spacing-unit);
 }
 
-.videoPlayer {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: var(--spacing-unit);
-}
-
 .description {
   font-size: var(--font-size-base);
   margin-bottom: var(--spacing-unit);
@@ -31,10 +24,22 @@
   margin-bottom: var(--spacing-unit);
 }
 
-.thumbnail {
+.fixedAspectRatio {
+  position: relative;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: var(--spacing-unit);
+  padding-top: 75%;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.thumbnail,
+.videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 8px;
 }
 

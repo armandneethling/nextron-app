@@ -180,15 +180,19 @@ const VideoDetails = () => {
       <Header />
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
-        <img
-          src={`/uploads/${video.thumbnail}`}
-          alt={`${video.title} thumbnail`}
-          className={styles.thumbnail}
-        />
-        <video controls className={styles.videoPlayer}>
-          <source src={`/uploads/${video.filename}`} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <div className={styles.fixedAspectRatio}>
+          <img
+            src={`/uploads/${video.thumbnail}`}
+            alt={`${video.title} thumbnail`}
+            className={styles.thumbnail}
+          />
+        </div>
+        <div className={styles.fixedAspectRatio}>
+          <video controls className={styles.videoPlayer}>
+            <source src={`/uploads/${video.filename}`} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
         <p className={styles.description}>{video.description}</p>
         <p className={styles.info}>Category: {video.category}</p>
         <p className={styles.info}>Privacy: {video.privacy}</p>
@@ -274,7 +278,7 @@ const VideoDetails = () => {
         </div>
       </div>
     </>
-  );  
+  );     
 };
 
 export default VideoDetails;

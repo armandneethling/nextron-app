@@ -61,7 +61,7 @@
 .form p {
   margin-top: 4px;
   font-size: var(--font-size-sm);
-  color: var (--text-color);
+  color: var(--text-color);
 }
 
 .uploadButton {
@@ -91,6 +91,13 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.uploadInstructions {
+  text-align: center;
+  margin-top: var(--spacing-unit);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
 }
 
 .error {
