@@ -8,7 +8,6 @@ const Review = defineReviewModel(sequelize);
 const Video = defineVideoModel(sequelize);
 const Reply = defineReplyModel(sequelize);
 
-// Define associations
 Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
 Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
 Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });

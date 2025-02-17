@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 export default function HomePage() {
   const [videos, setVideos] = useState([]);
+  const [notification, setNotification] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -44,14 +45,17 @@ export default function HomePage() {
       const result = await response.json();
       if (response.ok) {
         setVideos(videos.filter((video) => video.id !== id));
-        alert('Video deleted successfully!');
+        setNotification('Video deleted successfully!');
+        setTimeout(() => setNotification(''), 3000);
       } else {
         console.error('Failed to delete video:', result.error);
-        alert('Failed to delete video.');
+        setNotification('Failed to delete video.');
+        setTimeout(() => setNotification(''), 3000);
       }
     } catch (error) {
       console.error('Error deleting video:', error);
-      alert('An error occurred while deleting the video.');
+      setNotification('An error occurred while deleting the video.');
+      setTimeout(() => setNotification(''), 3000);
     }
   };
 
@@ -62,6 +66,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
+      {notification && <div className={styles.alert}>{notification}</div>}
       <div className={styles.container}>
         {videos.length > 0 ? (
           videos.map((video) => (

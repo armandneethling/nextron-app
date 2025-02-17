@@ -36,7 +36,6 @@ handler.delete(async (req, res) => {
 
     await video.destroy();
 
-    // Delete the video file
     fs.unlink(videoFilePath, (err) => {
       if (err) {
         console.error('Error deleting video file:', err);

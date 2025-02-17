@@ -178,3 +178,9 @@
   margin-bottom: var(--spacing-unit);
   color: var(--color2);
 }
+
+.alert {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}

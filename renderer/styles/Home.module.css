@@ -104,6 +104,12 @@
   margin-bottom: var(--spacing-unit);
 }
 
+.alert {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: var(--spacing-unit);

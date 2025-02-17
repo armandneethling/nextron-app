@@ -116,105 +116,109 @@ function UploadForm({ onUpload }) {
       setError('An error occurred while uploading the video.');
     } finally {
       setIsUploading(false);
-      titleInputRef.current.focus();
+      setTimeout(() => {
+        setMessage('');
+        titleInputRef.current.focus();
+      }, 3000);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <label htmlFor="title">
-        <span>Title:</span>
-        <input
-          id="title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          ref={titleInputRef}
-        />
-      </label>
-
-      <label htmlFor="description">
-        <span>Description:</span>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </label>
-
-      <label htmlFor="category">
-        <span>Category:</span>
-        <select
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Select a category
-          </option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label htmlFor="thumbnail">
-        <span>Thumbnail:</span>
-        <input
-          id="thumbnail"
-          type="file"
-          accept="image/*"
-          onChange={handleThumbnailChange}
-          required
-        />
-        {thumbnail && <p>Selected file: {thumbnail.name}</p>}
-      </label>
-
-      <label htmlFor="privacy">
-        <span>Privacy:</span>
-        <select
-          id="privacy"
-          value={privacy}
-          onChange={(e) => setPrivacy(e.target.value)}
-          required
-        >
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-        </select>
-      </label>
-
-      <label htmlFor="video">
-        <span>Upload a video:</span>
-        <input
-          id="video"
-          type="file"
-          accept="video/*"
-          onChange={handleVideoChange}
-          required
-        />
-        {video && <p>Selected file: {video.name}</p>}
-      </label>
-
+    <div>
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.message}>{message}</p>}
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label htmlFor="title">
+          <span>Title:</span>
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            ref={titleInputRef}
+          />
+        </label>
 
-      <div className={styles.uploadInstructions}>
-        <p>For best results, please upload videos and images with a 16:9 aspect ratio.</p>
-      </div>
+        <label htmlFor="description">
+          <span>Description:</span>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </label>
 
-      <button
-        type="submit"
-        className={styles.uploadButton}
-        disabled={isUploading}
-      >
-        {isUploading ? 'Uploading...' : 'Upload'}
-      </button>
-    </form>
+        <label htmlFor="category">
+          <span>Category:</span>
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label htmlFor="thumbnail">
+          <span>Thumbnail:</span>
+          <input
+            id="thumbnail"
+            type="file"
+            accept="image/*"
+            onChange={handleThumbnailChange}
+            required
+          />
+          {thumbnail && <p>Selected file: {thumbnail.name}</p>}
+        </label>
+
+        <label htmlFor="privacy">
+          <span>Privacy:</span>
+          <select
+            id="privacy"
+            value={privacy}
+            onChange={(e) => setPrivacy(e.target.value)}
+            required
+          >
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+          </select>
+        </label>
+
+        <label htmlFor="video">
+          <span>Upload a video:</span>
+          <input
+            id="video"
+            type="file"
+            accept="video/*"
+            onChange={handleVideoChange}
+            required
+          />
+          {video && <p>Selected file: {video.name}</p>}
+        </label>
+
+        <div className={styles.uploadInstructions}>
+          <p>For best results, please upload videos and images with a 16:9 aspect ratio.</p>
+        </div>
+
+        <button
+          type="submit"
+          className={styles.uploadButton}
+          disabled={isUploading}
+        >
+          {isUploading ? 'Uploading...' : 'Upload'}
+        </button>
+      </form>
+    </div>
   );
 }
 

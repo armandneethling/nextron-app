@@ -14,6 +14,7 @@ const VideoDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [replyComment, setReplyComment] = useState('');
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [notification, setNotification] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -37,7 +38,8 @@ const VideoDetails = () => {
 
   const handleReviewSubmit = async () => {
     if (newRating === 0 || !newComment.trim()) {
-      alert('Please provide a rating and a comment.');
+      setNotification('Please provide a rating and a comment.');
+      setTimeout(() => setNotification(''), 3000);
       return;
     }
 
@@ -83,15 +85,18 @@ const VideoDetails = () => {
         } else {
           setReviews([...reviews, data.review]);
         }
+        setNotification('Review submitted successfully.');
         setNewRating(0);
         setNewComment('');
       } else {
         const errorData = await response.json();
-        alert(`Error submitting review: ${errorData.error}`);
+        setNotification(`Error submitting review: ${errorData.error}`);
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      alert('An error occurred while submitting your review.');
+      setNotification('An error occurred while submitting your review.');
+    } finally {
+      setTimeout(() => setNotification(''), 3000);
     }
   };
 
@@ -120,23 +125,26 @@ const VideoDetails = () => {
 
       if (response.ok) {
         setReviews(reviews.filter((review) => review.id !== reviewId));
-        alert('Review deleted successfully.');
+        setNotification('Review deleted successfully.');
       } else {
         const errorData = await response.json();
-        alert(`Error deleting review: ${errorData.error}`);
+        setNotification(`Error deleting review: ${errorData.error}`);
       }
     } catch (error) {
       console.error('Error deleting review:', error);
-      alert('An error occurred while deleting your review.');
+      setNotification('An error occurred while deleting your review.');
+    } finally {
+      setTimeout(() => setNotification(''), 3000);
     }
   };
 
   const handleReplySubmit = async (reviewId) => {
     if (!replyComment.trim()) {
-      alert('Please write a reply.');
+      setNotification('Please write a reply.');
+      setTimeout(() => setNotification(''), 3000);
       return;
     }
-  
+
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
@@ -150,7 +158,7 @@ const VideoDetails = () => {
           comment: replyComment.trim(),
         }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         setReviews(
@@ -161,23 +169,23 @@ const VideoDetails = () => {
           )
         );
         setReplyComment('');
+        setNotification('Reply submitted successfully.');
       } else {
         const errorData = await response.json();
-        alert(`Error submitting reply: ${errorData.error}`);
+        setNotification(`Error submitting reply: ${errorData.error}`);
       }
     } catch (error) {
       console.error('Error submitting reply:', error);
-      alert('An error occurred while submitting your reply.');
+      setNotification('An error occurred while submitting your reply.');
+    } finally {
+      setTimeout(() => setNotification(''), 3000);
     }
   };
-
-  if (!video) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
       <Header />
+      {notification && <div className={styles.alert}>{notification}</div>}
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
         <div className={styles.thumbnailContainer}>
@@ -286,7 +294,7 @@ const VideoDetails = () => {
         </div>
       </div>
     </>
-  );                 
+  );
 };
 
 export default VideoDetails;

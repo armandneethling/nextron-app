@@ -1,15 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import styles from '../styles/RegisterForm.module.css';
 
 const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [notification, setNotification] = useState('');
   const usernameInputRef = useRef(null);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    console.log('Form submitted'); // Debugging line
 
     try {
       const response = await fetch('/api/register', {
@@ -21,74 +21,56 @@ const RegisterForm = () => {
       });
 
       if (response.ok) {
-        alert('Registration successful');
+        setNotification('Registration successful');
+        setTimeout(() => {
+          setNotification('');
+          usernameInputRef.current.focus();
+        }, 3000);
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.error}`);
+        setNotification(`Error: ${errorData.error}`);
+        setTimeout(() => setNotification(''), 3000);
       }
     } catch (error) {
       console.error('Error registering user:', error);
-    } finally {
-      console.log('Form submission complete'); // Debugging line
-      usernameInputRef.current.focus();
+      setNotification('An error occurred');
+      setTimeout(() => setNotification(''), 3000);
     }
   };
 
-  useEffect(() => {
-    console.log('Checking for JavaScript errors'); // Debugging line
-    // Check for global event listeners
-    window.addEventListener('click', (event) => {
-      console.log('Window click event', event);
-    });
-    document.addEventListener('click', (event) => {
-      console.log('Document click event', event);
-    });
-
-    // Inspect CSS styles for input fields
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      console.log(input, window.getComputedStyle(input));
-    });
-
-    // Check for overlapping elements
-    const form = document.querySelector(`.${styles.form}`);
-    const boundingBox = form.getBoundingClientRect();
-    console.log('Form bounding box:', boundingBox);
-
-    const overlappedElements = document.elementsFromPoint(boundingBox.left, boundingBox.top);
-    console.log('Overlapping elements:', overlappedElements);
-  }, []);
-
   return (
-    <form onSubmit={handleRegister} className={styles.form}>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-        required
-        className={styles.input}
-        ref={usernameInputRef}
-      />
-      <div className={styles.passwordContainer}>
+    <div>
+      {notification && <div className={styles.alert}>{notification}</div>}
+      <form onSubmit={handleRegister} className={styles.form}>
         <input
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
           required
           className={styles.input}
+          ref={usernameInputRef}
         />
-        <button
-          type="button"
-          className={styles.viewPasswordButton}
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? "Hide" : "Show"}
-        </button>
-      </div>
-      <button type="submit" className={styles.button}>Register</button>
-    </form>
+        <div className={styles.passwordContainer}>
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            className={styles.input}
+          />
+          <button
+            type="button"
+            className={styles.viewPasswordButton}
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
+        <button type="submit" className={styles.button}>Register</button>
+      </form>
+    </div>
   );
 };
 

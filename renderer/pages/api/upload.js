@@ -6,10 +6,8 @@ import { sequelize } from '../../../utils/database';
 import defineVideoModel from '../../../models/Video';
 import getVideoDurationInSeconds from 'get-video-duration';
 
-// Initialize the Video model
 const Video = defineVideoModel(sequelize);
 
-// Configure Multer for file uploads
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
@@ -20,7 +18,6 @@ const upload = multer({
     },
   }),
   fileFilter: (req, file, cb) => {
-    // Validate file types
     if (file.fieldname === 'video') {
       if (file.mimetype.startsWith('video/')) {
         cb(null, true);
@@ -41,7 +38,6 @@ const upload = multer({
 
 const apiRoute = nextConnect();
 
-// Handle multipart/form-data
 apiRoute.use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]));
 
 apiRoute.post(async (req, res) => {
