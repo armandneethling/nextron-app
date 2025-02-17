@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/LoginForm.module.css';
 
@@ -6,6 +6,7 @@ const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const usernameInputRef = useRef(null);
   const router = useRouter();
 
   const handleLogin = async (e) => {
@@ -32,6 +33,8 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.error('Error logging in user:', error);
+    } finally {
+      usernameInputRef.current.focus();
     }
   };
 
@@ -44,6 +47,7 @@ const LoginForm = () => {
         placeholder="Username"
         required
         className={styles.input}
+        ref={usernameInputRef}
       />
       <div className={styles.passwordContainer}>
         <input

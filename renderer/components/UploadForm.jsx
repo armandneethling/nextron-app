@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from '../styles/UploadForm.module.css';
 
 function UploadForm({ onUpload }) {
@@ -11,6 +11,7 @@ function UploadForm({ onUpload }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const titleInputRef = useRef(null);
 
   const categories = [
     'Education',
@@ -115,6 +116,7 @@ function UploadForm({ onUpload }) {
       setError('An error occurred while uploading the video.');
     } finally {
       setIsUploading(false);
+      titleInputRef.current.focus();
     }
   };
 
@@ -128,6 +130,7 @@ function UploadForm({ onUpload }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          ref={titleInputRef}
         />
       </label>
 

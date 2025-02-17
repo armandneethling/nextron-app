@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import styles from '../styles/RegisterForm.module.css';
 
 const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('user');
+  const usernameInputRef = useRef(null);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ const RegisterForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: username, username, password, role }),
+        body: JSON.stringify({ id: username, username, password, role: 'user' }),
       });
 
       if (response.ok) {
@@ -27,6 +27,8 @@ const RegisterForm = () => {
       }
     } catch (error) {
       console.error('Error registering user:', error);
+    } finally {
+      usernameInputRef.current.focus();
     }
   };
 
@@ -39,6 +41,7 @@ const RegisterForm = () => {
         placeholder="Username"
         required
         className={styles.input}
+        ref={usernameInputRef}
       />
       <div className={styles.passwordContainer}>
         <input
