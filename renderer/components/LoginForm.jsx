@@ -6,7 +6,7 @@ const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const usernameInputRef = useRef(null);
   const router = useRouter();
 
@@ -26,20 +26,20 @@ const LoginForm = () => {
         const data = await response.json();
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userRole', data.user.role);
-        setNotification('Login successful');
+        setNotification({ message: 'Login successful', type: 'success' });
         setTimeout(() => {
-          setNotification('');
+          setNotification({ message: '', type: '' });
           router.push('/home');
         }, 3000);
       } else {
         const errorData = await response.json();
-        setNotification(`Error: ${errorData.error}`);
-        setTimeout(() => setNotification(''), 3000);
+        setNotification({ message: `Error: ${errorData.error}`, type: 'error' });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       }
     } catch (error) {
       console.error('Error logging in user:', error);
-      setNotification('An error occurred');
-      setTimeout(() => setNotification(''), 3000);
+      setNotification({ message: 'An error occurred', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     } finally {
       usernameInputRef.current.focus();
     }

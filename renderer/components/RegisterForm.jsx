@@ -5,7 +5,7 @@ const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const usernameInputRef = useRef(null);
 
   const handleRegister = async (e) => {
@@ -21,20 +21,20 @@ const RegisterForm = () => {
       });
 
       if (response.ok) {
-        setNotification('Registration successful');
+        setNotification({ message: 'Registration successful', type: 'success' });
         setTimeout(() => {
-          setNotification('');
+          setNotification({ message: '', type: '' });
           usernameInputRef.current.focus();
         }, 3000);
       } else {
         const errorData = await response.json();
-        setNotification(`Error: ${errorData.error}`);
-        setTimeout(() => setNotification(''), 3000);
+        setNotification({ message: `Error: ${errorData.error}`, type: 'error' });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       }
     } catch (error) {
       console.error('Error registering user:', error);
-      setNotification('An error occurred');
-      setTimeout(() => setNotification(''), 3000);
+      setNotification({ message: 'An error occurred', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
   };
 
