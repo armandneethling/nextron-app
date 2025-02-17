@@ -11,3 +11,10 @@
   color: var(--primary-color);
   font-weight: 700;
 }
+
+@media (max-width: 768px) {
+  .formContainer {
+    padding: var(--spacing-unit);
+    padding-top: 80px;
+  }
+}

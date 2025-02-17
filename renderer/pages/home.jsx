@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 
 export default function HomePage() {
   const [videos, setVideos] = useState([]);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const router = useRouter();
 
   useEffect(() => {
@@ -45,17 +45,17 @@ export default function HomePage() {
       const result = await response.json();
       if (response.ok) {
         setVideos(videos.filter((video) => video.id !== id));
-        setNotification('Video deleted successfully!');
-        setTimeout(() => setNotification(''), 3000);
+        setNotification({ message: 'Video deleted successfully!', type: 'success' });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       } else {
         console.error('Failed to delete video:', result.error);
-        setNotification('Failed to delete video.');
-        setTimeout(() => setNotification(''), 3000);
+        setNotification({ message: 'Failed to delete video.', type: 'error' });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       }
     } catch (error) {
       console.error('Error deleting video:', error);
-      setNotification('An error occurred while deleting the video.');
-      setTimeout(() => setNotification(''), 3000);
+      setNotification({ message: 'An error occurred while deleting the video.', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
   };
 
@@ -66,7 +66,11 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      {notification && <div className={styles.alert}>{notification}</div>}
+      {notification.message && (
+        <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+          {notification.message}
+        </div>
+      )}
       <div className={styles.container}>
         {videos.length > 0 ? (
           videos.map((video) => (
