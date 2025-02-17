@@ -16,14 +16,14 @@ Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
 const handler = nextConnect();
 
-const isAdmin = (userId) => {
-  return userId === 'admin';
+const isAdmin = (role) => {
+  return role === 'admin';
 };
 
 handler.post(async (req, res) => {
-  const { reviewId, userId, comment } = req.body;
+  const { reviewId, userId, userRole, comment } = req.body;
 
-  if (!reviewId || !userId || !comment) {
+  if (!reviewId || !userId || !userRole || !comment) {
     return res.status(400).json({ error: 'Invalid data.' });
   }
 
@@ -38,7 +38,7 @@ handler.post(async (req, res) => {
 
     const video = review.video;
 
-    if (userId !== video.uploaderId && !isAdmin(userId)) {
+    if (userId !== video.uploaderId && !isAdmin(userRole)) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
 

@@ -1,15 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
 
 :root {
-  --primary-color: #17a2b8;
+  --primary-color: #117e8e;
   --secondary-color: #6c757d;
   --background-color: #343a40;
   --text-color: #f8f9fa;
+  --color1: #b357cf;
+  --color2: #52c79a;
 
   --success-color: #218838;
   --danger-color: #c82333;
   --warning-color: #e0a800;
-  --info-color: #138496;
+  --info-color: #138f9f;
 
   --font-size-base: 16px;
   --font-size-lg: 1.25rem;

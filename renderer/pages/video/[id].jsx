@@ -136,7 +136,7 @@ const VideoDetails = () => {
       alert('Please write a reply.');
       return;
     }
-
+  
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
@@ -150,7 +150,7 @@ const VideoDetails = () => {
           comment: replyComment.trim(),
         }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setReviews(
@@ -180,29 +180,37 @@ const VideoDetails = () => {
       <Header />
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
-        <div className={styles.fixedAspectRatio}>
+        <div className={styles.thumbnailContainer}>
           <img
             src={`/uploads/${video.thumbnail}`}
             alt={`${video.title} thumbnail`}
             className={styles.thumbnail}
           />
         </div>
-        <div className={styles.fixedAspectRatio}>
+        <div className={styles.videoContainer}>
           <video controls className={styles.videoPlayer}>
             <source src={`/uploads/${video.filename}`} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
-        <p className={styles.description}>{video.description}</p>
-        <p className={styles.info}>Category: {video.category}</p>
-        <p className={styles.info}>Privacy: {video.privacy}</p>
-        <p className={styles.info}>Duration: {video.duration} seconds</p>
-        <p className={styles.info}>
-          Uploaded at: {new Date(video.createdAt).toLocaleString()}
-        </p>
+        <div className={styles.infoSection}>
+          <h2 className={styles.infoTitle}>Video Information</h2>
+          <p className={styles.subHeader}>Description:</p>
+          <p className={styles.info}>{video.description}</p>
+          <p className={styles.subHeader}>Category:</p>
+          <p className={styles.info}>{video.category}</p>
+          <p className={styles.subHeader}>Privacy:</p>
+          <p className={styles.info}>{video.privacy}</p>
+          <p className={styles.subHeader}>Duration:</p>
+          <p className={styles.info}>{video.duration} seconds</p>
+          <p className={styles.subHeader}>Uploaded at:</p>
+          <p className={styles.info}>
+            {new Date(video.createdAt).toLocaleString()}
+          </p>
+        </div>
   
         <div className={styles.reviewsSection}>
-          <h2>Reviews</h2>
+          <h2 className={styles.reviewTitle}>Reviews</h2>
           {reviews.length > 0 ? (
             reviews.map((review) => (
               <div key={review.id} className={styles.review}>
@@ -257,7 +265,7 @@ const VideoDetails = () => {
           )}
   
           <div className={styles.reviewForm}>
-            <h3>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
+            <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
             <ReactStars
               count={5}
               value={newRating}
@@ -278,7 +286,7 @@ const VideoDetails = () => {
         </div>
       </div>
     </>
-  );     
+  );                 
 };
 
 export default VideoDetails;

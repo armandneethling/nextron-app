@@ -7,6 +7,8 @@ function Header() {
     <nav className={styles.nav}>
       <Link href="/home">Home</Link>
       <Link href="/upload">Upload a Video</Link>
+      <Link href="/register">Register</Link>
+      <Link href="/login">Login</Link>
     </nav>
   );
 }
