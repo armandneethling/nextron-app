@@ -47,7 +47,11 @@ const LoginForm = () => {
 
   return (
     <div>
-      {notification && <div className={styles.alert}>{notification}</div>}
+      {notification.message && (
+        <p className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+          {notification.message}
+        </p>
+      )}
       <form onSubmit={handleLogin} className={styles.form}>
         <input
           type="text"

@@ -180,7 +180,14 @@
 }
 
 .alert {
-  color: red;
   text-align: center;
   margin-top: 10px;
+}
+
+.alert--success {
+  color: green;
+}
+
+.alert--error {
+  color: red;
 }

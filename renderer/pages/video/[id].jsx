@@ -185,7 +185,11 @@ const VideoDetails = () => {
   return (
     <>
       <Header />
-      {notification && <div className={styles.alert}>{notification}</div>}
+      {notification.message && (
+        <p className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+          {notification.message}
+        </p>
+      )}
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
         <div className={styles.thumbnailContainer}>

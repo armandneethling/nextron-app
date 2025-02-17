@@ -8,8 +8,7 @@ function UploadForm({ onUpload }) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [privacy, setPrivacy] = useState('public');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const [isUploading, setIsUploading] = useState(false);
   const titleInputRef = useRef(null);
 
@@ -26,10 +25,10 @@ function UploadForm({ onUpload }) {
     const file = e.target.files[0];
     if (file && file.type.startsWith('video/')) {
       setVideo(file);
-      setError('');
+      setNotification({ message: '', type: '' });
     } else {
       setVideo(null);
-      setError('Please select a valid video file.');
+      setNotification({ message: 'Please select a valid video file.', type: 'error' });
     }
   };
 
@@ -37,36 +36,36 @@ function UploadForm({ onUpload }) {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
       setThumbnail(file);
-      setError('');
+      setNotification({ message: '', type: '' });
     } else {
       setThumbnail(null);
-      setError('Please select a valid image file.');
+      setNotification({ message: 'Please select a valid image file.', type: 'error' });
     }
   };
 
   const validateForm = () => {
     if (!title.trim()) {
-      setError('Title is required.');
+      setNotification({ message: 'Title is required.', type: 'error' });
       return false;
     }
     if (!description.trim()) {
-      setError('Description is required.');
+      setNotification({ message: 'Description is required.', type: 'error' });
       return false;
     }
     if (!category.trim()) {
-      setError('Please select a category.');
+      setNotification({ message: 'Please select a category.', type: 'error' });
       return false;
     }
     if (!video) {
-      setError('Please select a valid video file.');
+      setNotification({ message: 'Please select a valid video file.', type: 'error' });
       return false;
     }
     if (!thumbnail) {
-      setError('Please select a valid thumbnail image.');
+      setNotification({ message: 'Please select a valid thumbnail image.', type: 'error' });
       return false;
     }
     if (!['public', 'private'].includes(privacy)) {
-      setError('Please select a valid privacy option.');
+      setNotification({ message: 'Please select a valid privacy option.', type: 'error' });
       return false;
     }
     return true;
@@ -74,8 +73,7 @@ function UploadForm({ onUpload }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setNotification({ message: '', type: '' });
 
     if (!validateForm()) {
       return;
@@ -98,10 +96,9 @@ function UploadForm({ onUpload }) {
 
       const result = await response.json();
       if (response.ok) {
-        setMessage('Video uploaded successfully!');
+        setNotification({ message: 'Video uploaded successfully!', type: 'success' });
         onUpload(result.video);
 
-        // Reset form fields
         setVideo(null);
         setThumbnail(null);
         setTitle('');
@@ -109,15 +106,15 @@ function UploadForm({ onUpload }) {
         setCategory('');
         setPrivacy('public');
       } else {
-        setError(result.error || 'Failed to upload video.');
+        setNotification({ message: result.error || 'Failed to upload video.', type: 'error' });
       }
     } catch (error) {
       console.error('Error uploading video:', error);
-      setError('An error occurred while uploading the video.');
+      setNotification({ message: 'An error occurred while uploading the video.', type: 'error' });
     } finally {
       setIsUploading(false);
       setTimeout(() => {
-        setMessage('');
+        setNotification({ message: '', type: '' });
         titleInputRef.current.focus();
       }, 3000);
     }
@@ -125,8 +122,11 @@ function UploadForm({ onUpload }) {
 
   return (
     <div>
-      {error && <p className={styles.error}>{error}</p>}
-      {message && <p className={styles.message}>{message}</p>}
+      {notification.message && (
+        <p className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+          {notification.message}
+        </p>
+      )}
       <form onSubmit={handleSubmit} className={styles.form}>
         <label htmlFor="title">
           <span>Title:</span>
