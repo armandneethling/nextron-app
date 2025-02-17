@@ -48,7 +48,7 @@
 .form input[type='file']:focus,
 .form select:focus,
 .form textarea:focus {
-  border-color: var(--info-color); 
+  border-color: var(--info-color);
   box-shadow: 0 0 8px rgba(19, 137, 150, 0.5);
   outline: none;
 }
@@ -61,7 +61,7 @@
 .form p {
   margin-top: 4px;
   font-size: var(--font-size-sm);
-  color: var(--text-color);
+  color: var (--text-color);
 }
 
 .uploadButton {

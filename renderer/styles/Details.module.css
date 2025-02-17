@@ -1,35 +1,35 @@
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    padding: 20px;
-  }
-  
-  .videoCard {
-    width: 300px;
-    margin: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  
-  .videoCard:hover {
-    transform: scale(1.05);
-  }
-  
-  .thumbnailWrapper {
-    position: relative;
-  }
-  
-  .thumbnail {
-    width: 100%;
-    height: auto;
-  }
-  
-  .videoTitle {
-    padding: 10px;
-    font-size: 18px;
-    text-align: center;
-  }  
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.videoCard {
+  width: 300px;
+  margin: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.videoCard:hover {
+  transform: scale(1.05);
+}
+
+.thumbnailWrapper {
+  position: relative;
+}
+
+.thumbnail {
+  width: 100%;
+  height: auto;
+}
+
+.videoTitle {
+  padding: 10px;
+  font-size: 18px;
+  text-align: center;
+}  
