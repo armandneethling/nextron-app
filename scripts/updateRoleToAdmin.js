@@ -1,5 +1,5 @@
-import { sequelize } from '../renderer/utils/database';
-import defineUserModel from '../models/User';
+const { sequelize } = require('../utils/database');
+const defineUserModel = require('../models/User');
 
 const User = defineUserModel(sequelize);
 
@@ -18,4 +18,4 @@ const updateRoleToAdmin = async (userId) => {
   }
 };
 
-updateRoleToAdmin('');
+updateRoleToAdmin('admin');

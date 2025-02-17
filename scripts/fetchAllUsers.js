@@ -15,5 +15,4 @@ const fetchAllUsers = async () => {
   }
 };
 
-// Call the function to fetch all users
 fetchAllUsers();

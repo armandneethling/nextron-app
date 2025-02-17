@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+const { DataTypes } = require('sequelize');
 
 const defineUserModel = (sequelize) => {
   const User = sequelize.define('User', {
@@ -24,4 +24,4 @@ const defineUserModel = (sequelize) => {
   return User;
 };
 
-export default defineUserModel;
+module.exports = defineUserModel;
