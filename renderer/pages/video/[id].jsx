@@ -33,7 +33,7 @@ const VideoDetails = () => {
       };
       fetchVideo();
     }
-  }, [id]);  
+  }, [id]);
 
   const handleReviewSubmit = async () => {
     if (newRating === 0 || !newComment.trim()) {
@@ -136,7 +136,7 @@ const VideoDetails = () => {
       alert('Please write a reply.');
       return;
     }
-  
+
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
@@ -150,7 +150,7 @@ const VideoDetails = () => {
           comment: replyComment.trim(),
         }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         setReviews(
@@ -169,7 +169,7 @@ const VideoDetails = () => {
       console.error('Error submitting reply:', error);
       alert('An error occurred while submitting your reply.');
     }
-  };  
+  };
 
   if (!video) {
     return <p>Loading...</p>;
