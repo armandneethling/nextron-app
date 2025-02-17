@@ -18,4 +18,4 @@ const updateRoleToAdmin = async (userId) => {
   }
 };
 
-updateRoleToAdmin('existingUserId');
+updateRoleToAdmin('');
