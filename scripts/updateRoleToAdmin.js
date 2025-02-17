@@ -1,4 +1,4 @@
-import { sequelize } from '../utils/database';
+import { sequelize } from '../renderer/utils/database';
 import defineUserModel from '../models/User';
 
 const User = defineUserModel(sequelize);
