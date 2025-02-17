@@ -4,31 +4,31 @@ import { promises as fs } from 'fs';
 
 const handler = nextConnect();
 
+const getVideosData = async () => {
+  const filePath = path.resolve('./data/videos.json');
+  const data = await fs.readFile(filePath, 'utf8');
+  return JSON.parse(data);
+};
+
 handler.get(async (req, res) => {
   const { id } = req.query;
-  console.log('Requested video ID:', id);
 
   if (!id) {
-    console.log('No ID provided in request');
-    return res.status(400).json({ error: 'No ID provided' });
+    return res.status(400).json({ error: 'Video ID is required.' });
   }
 
   try {
-    const filePath = path.resolve('./data/videos.json');
-    const data = await fs.readFile(filePath, 'utf8');
-    const videos = JSON.parse(data);
+    const videos = await getVideosData();
     const video = videos.find((v) => v.id === id);
 
-    if (video) {
-      console.log('Fetched video:', video);
-      return res.status(200).json(video);
-    } else {
-      console.log('Video not found for ID:', id);
-      return res.status(404).json({ error: 'Video not found' });
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found.' });
     }
+
+    res.status(200).json(video);
   } catch (error) {
-    console.error('Error reading video data:', error);
-    return res.status(500).json({ error: 'Error reading video data' });
+    console.error('Error retrieving video:', error);
+    res.status(500).json({ error: 'Error retrieving video.' });
   }
 });
 

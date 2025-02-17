@@ -17,18 +17,15 @@ const VideoDetails = () => {
 
   useEffect(() => {
     if (id) {
-      console.log('Fetching video with ID:', id);
       const fetchVideo = async () => {
         try {
           const response = await fetch(`/api/getVideo?id=${id}`, { cache: 'no-store' });
           if (response.ok) {
             const result = await response.json();
-            console.log('Fetched video data:', result);
             setVideo(result);
             setReviews(result.reviews || []);
           } else {
-            const error = await response.text();
-            console.error('Failed to fetch video:', error);
+            console.error('Failed to fetch video:', await response.text());
           }
         } catch (error) {
           console.error('Error fetching video:', error);
@@ -36,7 +33,7 @@ const VideoDetails = () => {
       };
       fetchVideo();
     }
-  }, [id]);
+  }, [id]);  
 
   const handleReviewSubmit = async () => {
     if (newRating === 0 || !newComment.trim()) {
