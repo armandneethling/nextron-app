@@ -1,24 +1,20 @@
 import nextConnect from 'next-connect';
-import path from 'path';
-import { promises as fs } from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { sequelize } from '../../utils/database';
+import defineReviewModel from '../../models/Review';
+import defineVideoModel from '../../models/Video';
+import defineReplyModel from '../../models/Reply';
+
+const Review = defineReviewModel(sequelize);
+const Video = defineVideoModel(sequelize);
+const Reply = defineReplyModel(sequelize);
+
+// Define associations
+Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
+Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
 const handler = nextConnect();
-
-const getVideosData = async () => {
-  const filePath = path.resolve('./data/videos.json');
-  const data = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(data);
-};
-
-const saveVideosData = async (videos) => {
-  const filePath = path.resolve('./data/videos.json');
-  await fs.writeFile(filePath, JSON.stringify(videos, null, 2));
-};
-
-const isAdmin = (userId) => {
-  return userId === 'admin';
-};
 
 handler.post(async (req, res) => {
   const { videoId, userId, rating, comment } = req.body;
@@ -28,31 +24,21 @@ handler.post(async (req, res) => {
   }
 
   try {
-    const videos = await getVideosData();
-    const video = videos.find((v) => v.id === videoId);
+    const video = await Video.findByPk(videoId);
 
     if (!video) {
       return res.status(404).json({ error: 'Video not found.' });
     }
 
-    const reviewId = uuidv4();
-    const newReview = {
-      id: reviewId,
+    const review = await Review.create({
+      videoId,
       userId,
       rating,
       comment,
-      createdAt: new Date().toISOString(),
-      replies: [],
-    };
+      createdAt: new Date(),
+    });
 
-    if (!video.reviews) {
-      video.reviews = [];
-    }
-
-    video.reviews.push(newReview);
-    await saveVideosData(videos);
-
-    res.status(201).json({ review: newReview });
+    res.status(201).json({ review });
   } catch (error) {
     console.error('Error adding review:', error);
     res.status(500).json({ error: 'Error adding review.' });
@@ -60,33 +46,24 @@ handler.post(async (req, res) => {
 });
 
 handler.put(async (req, res) => {
-  const { videoId, reviewId, userId, rating, comment } = req.body;
+  const { reviewId, userId, rating, comment } = req.body;
 
-  if (!videoId || !reviewId || !userId || rating == null || !comment) {
+  if (!reviewId || !userId || rating == null || !comment) {
     return res.status(400).json({ error: 'Invalid data.' });
   }
 
   try {
-    const videos = await getVideosData();
-    const video = videos.find((v) => v.id === videoId);
-
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found.' });
-    }
-
-    const review = video.reviews.find(
-      (r) => r.id === reviewId && r.userId === userId
-    );
+    const review = await Review.findOne({ where: { id: reviewId, userId } });
 
     if (!review) {
       return res.status(404).json({ error: 'Review not found or unauthorized.' });
     }
 
-    review.rating = rating;
-    review.comment = comment;
-    review.updatedAt = new Date().toISOString();
-
-    await saveVideosData(videos);
+    await review.update({
+      rating,
+      comment,
+      updatedAt: new Date(),
+    });
 
     res.status(200).json({ review });
   } catch (error) {
@@ -96,31 +73,20 @@ handler.put(async (req, res) => {
 });
 
 handler.delete(async (req, res) => {
-  const { videoId, reviewId, userId } = req.body;
+  const { reviewId, userId } = req.body;
 
-  if (!videoId || !reviewId || !userId) {
+  if (!reviewId || !userId) {
     return res.status(400).json({ error: 'Invalid data.' });
   }
 
   try {
-    const videos = await getVideosData();
-    const video = videos.find((v) => v.id === videoId);
+    const review = await Review.findOne({ where: { id: reviewId, userId } });
 
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found.' });
-    }
-
-    const reviewIndex = video.reviews.findIndex(
-      (r) => r.id === reviewId && r.userId === userId
-    );
-
-    if (reviewIndex === -1) {
+    if (!review) {
       return res.status(404).json({ error: 'Review not found or unauthorized.' });
     }
 
-    video.reviews.splice(reviewIndex, 1);
-
-    await saveVideosData(videos);
+    await review.destroy();
 
     res.status(200).json({ message: 'Review deleted successfully.' });
   } catch (error) {

@@ -19,7 +19,7 @@ const VideoDetails = () => {
     if (id) {
       const fetchVideo = async () => {
         try {
-          const response = await fetch(`/api/getVideo?id=${id}`, { cache: 'no-store' });
+          const response = await fetch(`/api/getVideos?id=${id}`, { cache: 'no-store' });
           if (response.ok) {
             const result = await response.json();
             setVideo(result);

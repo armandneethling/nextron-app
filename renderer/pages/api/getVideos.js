@@ -1,14 +1,19 @@
 import nextConnect from 'next-connect';
-import path from 'path';
-import { promises as fs } from 'fs';
+import { sequelize } from '../../utils/database';
+import defineVideoModel from '../../models/Video';
+import defineReviewModel from '../../models/Review';
+import defineReplyModel from '../../models/Reply';
+
+const Video = defineVideoModel(sequelize);
+const Review = defineReviewModel(sequelize);
+const Reply = defineReplyModel(sequelize);
+
+Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
+Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
 const handler = nextConnect();
-
-const getVideosData = async () => {
-  const filePath = path.resolve('./data/videos.json');
-  const data = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(data);
-};
 
 handler.get(async (req, res) => {
   const { id } = req.query;
@@ -18,8 +23,16 @@ handler.get(async (req, res) => {
   }
 
   try {
-    const videos = await getVideosData();
-    const video = videos.find((v) => v.id === id);
+    const video = await Video.findByPk(id, {
+      include: {
+        model: Review,
+        as: 'reviews',
+        include: {
+          model: Reply,
+          as: 'replies',
+        },
+      },
+    });
 
     if (!video) {
       return res.status(404).json({ error: 'Video not found.' });

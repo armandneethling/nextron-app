@@ -2,9 +2,14 @@ import nextConnect from 'next-connect';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-import { promises as fsPromises } from 'fs';
+import { sequelize } from '../../utils/database';
+import defineVideoModel from '../../models/Video';
 import getVideoDurationInSeconds from 'get-video-duration';
 
+// Initialize the Video model
+const Video = defineVideoModel(sequelize);
+
+// Configure Multer for file uploads
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
@@ -15,6 +20,7 @@ const upload = multer({
     },
   }),
   fileFilter: (req, file, cb) => {
+    // Validate file types
     if (file.fieldname === 'video') {
       if (file.mimetype.startsWith('video/')) {
         cb(null, true);
@@ -35,6 +41,7 @@ const upload = multer({
 
 const apiRoute = nextConnect();
 
+// Handle multipart/form-data
 apiRoute.use(upload.fields([{ name: 'video' }, { name: 'thumbnail' }]));
 
 apiRoute.post(async (req, res) => {
@@ -42,60 +49,29 @@ apiRoute.post(async (req, res) => {
     const videoFile = req.files['video'] ? req.files['video'][0] : null;
     const thumbnailFile = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
 
-    if (!videoFile) {
-      return res.status(400).json({ error: 'Video file is required.' });
-    }
-    if (!thumbnailFile) {
-      return res.status(400).json({ error: 'Thumbnail image is required.' });
-    }
-    if (!req.body.title || !req.body.title.trim()) {
-      return res.status(400).json({ error: 'Title is required.' });
-    }
-    if (!req.body.description || !req.body.description.trim()) {
-      return res.status(400).json({ error: 'Description is required.' });
-    }
-    if (!req.body.category || !req.body.category.trim()) {
-      return res.status(400).json({ error: 'Category is required.' });
-    }
-    if (!['public', 'private'].includes(req.body.privacy)) {
-      return res.status(400).json({ error: 'Invalid privacy option.' });
+    if (!videoFile || !thumbnailFile) {
+      return res.status(400).json({ error: 'Video file and thumbnail are required.' });
     }
 
-    const videoId = uuidv4();
     const videoPath = path.join(process.cwd(), 'renderer/public/uploads', videoFile.filename);
-
     const durationInSeconds = await getVideoDurationInSeconds(videoPath);
 
-    const newVideo = {
-      id: videoId,
-      uploaderId: req.body.uploaderId || 'uploader-123',
+    const video = await Video.create({
+      id: uuidv4(),
       filename: videoFile.filename,
       thumbnail: thumbnailFile.filename,
-      title: req.body.title.trim(),
-      description: req.body.description.trim(),
-      category: req.body.category.trim(),
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
       privacy: req.body.privacy,
       duration: Math.round(durationInSeconds),
-      createdAt: new Date().toISOString(),
-    };
+      createdAt: new Date(),
+    });
 
-    const filePath = path.resolve('./data/videos.json');
-    let videos = [];
-
-    try {
-      const data = await fsPromises.readFile(filePath, 'utf8');
-      videos = JSON.parse(data);
-    } catch (error) {
-      console.log('No existing videos.json file. A new one will be created.');
-    }
-
-    videos.push(newVideo);
-    await fsPromises.writeFile(filePath, JSON.stringify(videos, null, 2));
-
-    res.status(201).json({ video: newVideo });
+    res.status(201).json({ video });
   } catch (error) {
     console.error('Error saving video:', error);
-    res.status(500).json({ error: 'Error saving video. ' + error.message });
+    res.status(500).json({ error: 'Error saving video.' });
   }
 });
 
@@ -103,6 +79,6 @@ export default apiRoute;
 
 export const config = {
   api: {
-    bodyParser: false, 
+    bodyParser: false,
   },
 };

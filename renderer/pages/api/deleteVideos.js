@@ -1,49 +1,42 @@
-import fs from 'fs';
-import path from 'path';
-import { promises as fsPromises } from 'fs';
+import nextConnect from 'next-connect';
+import { sequelize } from '../../utils/database';
+import defineVideoModel from '../../models/Video';
+import defineReviewModel from '../../models/Review';
+import defineReplyModel from '../../models/Reply';
 
-export default async function handler(req, res) {
-  if (req.method === 'DELETE') {
-    const { id } = req.body;
+const Video = defineVideoModel(sequelize);
+const Review = defineReviewModel(sequelize);
+const Reply = defineReplyModel(sequelize);
 
-    try {
-      const filePath = path.resolve('./data/videos.json');
-      const data = await fsPromises.readFile(filePath, 'utf8');
-      const videos = JSON.parse(data);
+// Define associations
+Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
+Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
-      const videoIndex = videos.findIndex(v => v.id === id);
+const handler = nextConnect();
 
-      if (videoIndex !== -1) {
-        const [video] = videos.splice(videoIndex, 1);
+handler.delete(async (req, res) => {
+  const { id } = req.body;
 
-        const videoPath = path.join(process.cwd(), 'renderer/public/uploads', video.filename);
-        const thumbnailPath = path.join(process.cwd(), 'renderer/public/uploads', video.thumbnail);
-
-        await fsPromises.writeFile(filePath, JSON.stringify(videos, null, 2));
-
-        fs.unlink(videoPath, (err) => {
-          if (err) {
-            console.error('Error deleting video file:', err);
-            return res.status(500).json({ error: 'Error deleting video file' });
-          }
-        });
-
-        fs.unlink(thumbnailPath, (err) => {
-          if (err) {
-            console.error('Error deleting thumbnail file:', err);
-            return res.status(500).json({ error: 'Error deleting thumbnail file' });
-          }
-        });
-
-        return res.status(200).json({ message: 'Video deleted successfully' });
-      } else {
-        return res.status(404).json({ error: 'Video not found' });
-      }
-    } catch (error) {
-      console.error('Error deleting video:', error);
-      return res.status(500).json({ error: 'Error deleting video' });
-    }
-  } else {
-    return res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+  if (!id) {
+    return res.status(400).json({ error: 'Video ID is required.' });
   }
-}
+
+  try {
+    const video = await Video.findByPk(id);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found.' });
+    }
+
+    await video.destroy();
+
+    res.status(200).json({ message: 'Video deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    res.status(500).json({ error: 'Error deleting video.' });
+  }
+});
+
+export default handler;

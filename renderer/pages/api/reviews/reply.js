@@ -1,66 +1,55 @@
 import nextConnect from 'next-connect';
-import path from 'path';
-import { promises as fs } from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { sequelize } from '../../../utils/database';
+import defineReviewModel from '../../../models/Review';
+import defineReplyModel from '../../../models/Reply';
+import defineVideoModel from '../../../models/Video';
+
+const Review = defineReviewModel(sequelize);
+const Reply = defineReplyModel(sequelize);
+const Video = defineVideoModel(sequelize);
+
+// Define associations
+Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
+Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
 const handler = nextConnect();
-
-const getVideosData = async () => {
-  const filePath = path.resolve('./data/videos.json');
-  const data = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(data);
-};
-
-const saveVideosData = async (videos) => {
-  const filePath = path.resolve('./data/videos.json');
-  await fs.writeFile(filePath, JSON.stringify(videos, null, 2));
-};
 
 const isAdmin = (userId) => {
   return userId === 'admin';
 };
 
 handler.post(async (req, res) => {
-  const { videoId, reviewId, userId, comment } = req.body;
+  const { reviewId, userId, comment } = req.body;
 
-  if (!videoId || !reviewId || !userId || !comment) {
+  if (!reviewId || !userId || !comment) {
     return res.status(400).json({ error: 'Invalid data.' });
   }
 
   try {
-    const videos = await getVideosData();
-    const video = videos.find((v) => v.id === videoId);
-
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found.' });
-    }
-
-    const review = video.reviews.find((r) => r.id === reviewId);
+    const review = await Review.findByPk(reviewId, {
+      include: { model: Video, as: 'video' },
+    });
 
     if (!review) {
       return res.status(404).json({ error: 'Review not found.' });
     }
 
+    const video = review.video;
+
     if (userId !== video.uploaderId && !isAdmin(userId)) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
 
-    const replyId = uuidv4();
-    const newReply = {
-      id: replyId,
+    const reply = await Reply.create({
+      reviewId,
       userId,
       comment,
-      createdAt: new Date().toISOString(),
-    };
+      createdAt: new Date(),
+    });
 
-    if (!review.replies) {
-      review.replies = [];
-    }
-
-    review.replies.push(newReply);
-    await saveVideosData(videos);
-
-    res.status(201).json({ reply: newReply });
+    res.status(201).json({ reply });
   } catch (error) {
     console.error('Error adding reply:', error);
     res.status(500).json({ error: 'Error adding reply.' });
