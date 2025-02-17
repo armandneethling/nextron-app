@@ -3,15 +3,23 @@ import styles from '../styles/UploadForm.module.css';
 
 function UploadForm({ onUpload }) {
   const [video, setVideo] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const categories = ['Education', 'Entertainment', 'Music', 'Sports', 'Technology', 'Other'];
-  const [thumbnail, setThumbnail] = useState(null);
   const [privacy, setPrivacy] = useState('public');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+
+  const categories = [
+    'Education',
+    'Entertainment',
+    'Music',
+    'Sports',
+    'Technology',
+    'Other',
+  ];
 
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
@@ -35,48 +43,78 @@ function UploadForm({ onUpload }) {
     }
   };
 
+  const validateForm = () => {
+    if (!title.trim()) {
+      setError('Title is required.');
+      return false;
+    }
+    if (!description.trim()) {
+      setError('Description is required.');
+      return false;
+    }
+    if (!category.trim()) {
+      setError('Please select a category.');
+      return false;
+    }
+    if (!video) {
+      setError('Please select a valid video file.');
+      return false;
+    }
+    if (!thumbnail) {
+      setError('Please select a valid thumbnail image.');
+      return false;
+    }
+    if (!['public', 'private'].includes(privacy)) {
+      setError('Please select a valid privacy option.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (video && thumbnail) {
-      setIsUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append('video', video);
-        formData.append('thumbnail', thumbnail);
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('category', category);
-        formData.append('privacy', privacy);
+    setError('');
+    setMessage('');
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+    if (!validateForm()) {
+      return;
+    }
 
-        const result = await response.json();
-        if (response.ok) {
-          setMessage('Video uploaded successfully!');
-          onUpload(result.video);
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('video', video);
+      formData.append('thumbnail', thumbnail);
+      formData.append('title', title.trim());
+      formData.append('description', description.trim());
+      formData.append('category', category.trim());
+      formData.append('privacy', privacy);
 
-          // Reset form fields
-          setVideo(null);
-          setThumbnail(null);
-          setTitle('');
-          setDescription('');
-          setCategory('');
-          setPrivacy('public');
-        } else {
-          setError('Failed to upload video.');
-        }
-      } catch (error) {
-        console.error('Error uploading video:', error);
-        setError('An error occurred while uploading the video.');
-      } finally {
-        setIsUploading(false);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setMessage('Video uploaded successfully!');
+        onUpload(result.video);
+
+        // Reset form fields
+        setVideo(null);
+        setThumbnail(null);
+        setTitle('');
+        setDescription('');
+        setCategory('');
+        setPrivacy('public');
+      } else {
+        setError(result.error || 'Failed to upload video.');
       }
-    } else {
-      setError('Please select both a video file and a thumbnail.');
-      setMessage('');
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      setError('An error occurred while uploading the video.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -140,6 +178,7 @@ function UploadForm({ onUpload }) {
           id="privacy"
           value={privacy}
           onChange={(e) => setPrivacy(e.target.value)}
+          required
         >
           <option value="public">Public</option>
           <option value="private">Private</option>
