@@ -1,31 +1,27 @@
-import nextConnect from 'next-connect';
-import { sequelize } from '../../../../utils/database';
-import defineUserModel from '../../../../models/User';
+import { sequelize } from '../../../utils/database';
+import defineUserModel from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
 const User = defineUserModel(sequelize);
 
-const handler = nextConnect();
-
-handler.post(async (req, res) => {
-  const { id, username, password, role } = req.body;
-
-  if (!id || !username || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
+export default async (req, res) => {
   try {
-    const newUser = await User.create({
-      id,
-      username,
-      password,
-      role: role || 'user',
-    });
+    if (req.method === 'POST') {
+      const { username, password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.status(201).json({ user: newUser });
+      const newUser = await User.create({
+        username,
+        password: hashedPassword,
+        role: 'user',
+      });
+
+      res.status(201).json({ message: 'User registered successfully', user: newUser });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
+    }
   } catch (error) {
     console.error('Error registering user:', error);
-    res.status(500).json({ error: 'Error registering user' });
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-export default handler;
+};

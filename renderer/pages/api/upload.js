@@ -2,8 +2,8 @@ import nextConnect from 'next-connect';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-import { sequelize } from '../../../../utils/database';
-import defineVideoModel from '../../../../models/Video';
+import { sequelize } from '../../../utils/database';
+import defineVideoModel from '../../../models/Video';
 import getVideoDurationInSeconds from 'get-video-duration';
 
 // Initialize the Video model

@@ -1,30 +1,36 @@
-import nextConnect from 'next-connect';
-import { sequelize } from '../../../../utils/database';
-import defineUserModel from '../../../../models/User';
+import { sequelize } from '../../../utils/database';
+import defineUserModel from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
 const User = defineUserModel(sequelize);
 
-const handler = nextConnect();
-
-handler.post(async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
+export default async (req, res) => {
   try {
-    const user = await User.findOne({ where: { username, password } });
+    if (req.method === 'POST') {
+      const { username, password } = req.body;
+      console.log('Received username:', username);
+      console.log('Received password:', password);
 
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      const user = await User.findOne({ where: { username } });
+      console.log('User found:', user);
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('Is password valid:', isPasswordValid);
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      res.status(200).json({ message: 'Login successful', user });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
     }
-
-    res.status(200).json({ user });
   } catch (error) {
     console.error('Error logging in user:', error);
-    res.status(500).json({ error: 'Error logging in user' });
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-export default handler;
+};

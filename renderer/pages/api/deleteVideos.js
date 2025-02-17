@@ -1,8 +1,8 @@
 import nextConnect from 'next-connect';
-import { sequelize } from '../../../../utils/database';
-import defineReviewModel from '../../../../models/Review';
-import defineReplyModel from '../../../../models/Reply';
-import defineVideoModel from '../../../../models/Video';
+import { sequelize } from '../../../utils/database';
+import defineReviewModel from '../../../models/Review';
+import defineReplyModel from '../../../models/Reply';
+import defineVideoModel from '../../../models/Video';
 import fs from 'fs';
 import path from 'path';
 
