@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import styles from '../styles/RegisterForm.module.css';
 
 const RegisterForm = () => {
   const [username, setUsername] = useState('');
@@ -29,13 +30,14 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleRegister}>
+    <form onSubmit={handleRegister} className={styles.form}>
       <input
         type="text"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Username"
         required
+        className={styles.input}
       />
       <input
         type="password"
@@ -43,8 +45,9 @@ const RegisterForm = () => {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
         required
+        className={styles.input}
       />
-      <button type="submit">Register</button>
+      <button type="submit" className={styles.button}>Register</button>
     </form>
   );
 };

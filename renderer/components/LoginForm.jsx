@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import styles from '../styles/LoginForm.module.css';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -34,13 +35,14 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleLogin} className={styles.form}>
       <input
         type="text"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Username"
         required
+        className={styles.input}
       />
       <input
         type="password"
@@ -48,8 +50,9 @@ const LoginForm = () => {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
         required
+        className={styles.input}
       />
-      <button type="submit">Login</button>
+      <button type="submit" className={styles.button}>Login</button>
     </form>
   );
 };
