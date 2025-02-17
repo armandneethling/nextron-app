@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from '../styles/Header.module.css';
 
 function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem('userId');
+    if (loggedInUser) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -13,6 +23,9 @@ function Header() {
       });
 
       if (response.ok) {
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
+        setIsLoggedIn(false);
         router.push('/login');
       } else {
         console.error('Failed to log out');
@@ -28,9 +41,11 @@ function Header() {
       <Link href="/upload">Upload a Video</Link>
       <Link href="/register">Register</Link>
       <Link href="/login">Login</Link>
-      <button onClick={handleLogout} className={styles.logoutButton}>
-        Logout
-      </button>
+      {isLoggedIn && (
+        <button onClick={handleLogout} className={styles.logoutButton}>
+          Logout
+        </button>
+      )}
     </nav>
   );
 }

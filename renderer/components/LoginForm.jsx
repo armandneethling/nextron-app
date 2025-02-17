@@ -3,6 +3,7 @@ import { useState } from 'react';
 const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,6 +22,7 @@ const LoginForm = () => {
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userRole', data.user.role);
         alert('Login successful');
+        router.push('/home');
       } else {
         const errorData = await response.json();
         alert(`Error: ${errorData.error}`);
