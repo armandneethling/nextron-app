@@ -196,7 +196,7 @@ const VideoDetails = () => {
         <p className={styles.info}>
           Uploaded at: {new Date(video.createdAt).toLocaleString()}
         </p>
-
+  
         <div className={styles.reviewsSection}>
           <h2>Reviews</h2>
           {reviews.length > 0 ? (
@@ -212,8 +212,8 @@ const VideoDetails = () => {
                 <p>{review.comment}</p>
                 {review.userId === userId && (
                   <div className={styles.reviewActions}>
-                    <button className={styles.button} onClick={() => handleEditReview(review)}>Edit</button>
-                    <button className={styles.button} onClick={() => handleDeleteReview(review.id)}>Delete</button>
+                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleEditReview(review)}>Edit</button>
+                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleDeleteReview(review.id)}>Delete</button>
                   </div>
                 )}
                 {review.replies && review.replies.length > 0 && (
@@ -238,12 +238,12 @@ const VideoDetails = () => {
                 {(userId === video.uploaderId || userId === 'admin') && (
                   <div className={styles.replyForm}>
                     <textarea
-                      className={styles.textarea}
+                      className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
                       value={replyComment}
                       onChange={(e) => setReplyComment(e.target.value)}
                       placeholder="Write your reply here..."
                     />
-                    <button className={styles.button} onClick={() => handleReplySubmit(review.id)}>Submit Reply</button>
+                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleReplySubmit(review.id)}>Submit Reply</button>
                   </div>
                 )}
               </div>
@@ -251,7 +251,7 @@ const VideoDetails = () => {
           ) : (
             <p>No reviews yet.</p>
           )}
-
+  
           <div className={styles.reviewForm}>
             <h3>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
             <ReactStars
@@ -262,19 +262,19 @@ const VideoDetails = () => {
               activeColor="#ffd700"
             />
             <textarea
-              className={styles.textarea}
+              className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write your review here..."
             />
-            <button className={styles.button} onClick={handleReviewSubmit}>
+            <button className={`${styles.button} ${styles.btnPrimary}`} onClick={handleReviewSubmit}>
               {editingReviewId ? 'Update Review' : 'Submit Review'}
             </button>
           </div>
         </div>
       </div>
     </>
-  );
+  );  
 };
 
 export default VideoDetails;
