@@ -19,8 +19,8 @@ const reviewHandler = async (req, res) => {
             console.log('Review not found:', reviewId);
             return res.status(404).json({ error: 'Review not found' });
           }
-          review.replies = review.replies || [];
-          review.replies.push({ userId, comment });
+          review.replyList = review.replyList || [];
+          review.replyList.push({ userId, comment });
           await review.save();
           console.log('Reply added:', review);
         } else {

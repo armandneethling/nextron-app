@@ -52,22 +52,22 @@ const VideoDetails = () => {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       return;
     }
-  
+
     if (!replyComment.trim()) {
       setNotification({ message: 'Please write a reply.', type: 'error' });
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       return;
     }
-  
+
     const replyData = {
       videoId: video.id,
       reviewId,
       userId,
       comment: replyComment.trim(),
     };
-  
+
     console.log('Reply Data:', replyData);
-  
+
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
@@ -76,7 +76,7 @@ const VideoDetails = () => {
         },
         body: JSON.stringify(replyData),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         setReviews(
@@ -98,7 +98,7 @@ const VideoDetails = () => {
     } finally {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
-  };  
+  };
 
   const handleReviewSubmit = async () => {
     if (newRating === 0 || !newComment.trim()) {
@@ -141,6 +141,31 @@ const VideoDetails = () => {
     }
   };
 
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reviewId, userId }),
+      });
+
+      if (response.ok) {
+        setReviews(reviews.filter((review) => review.id !== reviewId));
+        setNotification({ message: 'Review deleted successfully.', type: 'success' });
+      } else {
+        const errorData = await response.json();
+        setNotification({ message: `Error deleting review: ${errorData.error}`, type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      setNotification({ message: 'An error occurred while deleting your review.', type: 'error' });
+    } finally {
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+    }
+  };
+
   if (!video) {
     return <p>Loading...</p>;
   }
@@ -149,7 +174,7 @@ const VideoDetails = () => {
     <>
       <Header />
       <div className={styles.container}>
-      <h1 className={styles.title}>{video.title}</h1>
+        <h1 className={styles.title}>{video.title}</h1>
         <div className={styles.thumbnailContainer}>
           <img
             src={`/uploads/${video.thumbnail}`}
