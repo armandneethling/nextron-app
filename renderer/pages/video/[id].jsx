@@ -13,12 +13,13 @@ const VideoDetails = () => {
   const [userRole, setUserRole] = useState(null);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
-  const [replyComment, setReplyComment] = useState('');
+  const [replyComments, setReplyComments] = useState({});
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingReplyId, setEditingReplyId] = useState(null); // Added to track editing reply
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUser = () => {
       const storedUserId = localStorage.getItem('userId');
       const storedUserRole = localStorage.getItem('userRole');
       if (storedUserId) {
@@ -42,8 +43,10 @@ const VideoDetails = () => {
       }
     };
 
-    fetchUser();
-    fetchVideo();
+    if (router.isReady) {
+      fetchUser();
+      fetchVideo();
+    }
   }, [id, router]);
 
   const handleReplySubmit = async (reviewId) => {
@@ -53,7 +56,9 @@ const VideoDetails = () => {
       return;
     }
 
-    if (!replyComment.trim()) {
+    const replyComment = replyComments[reviewId];
+
+    if (!replyComment || !replyComment.trim()) {
       setNotification({ message: 'Please write a reply.', type: 'error' });
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       return;
@@ -66,11 +71,9 @@ const VideoDetails = () => {
       comment: replyComment.trim(),
     };
 
-    console.log('Reply Data:', replyData);
-
     try {
       const response = await fetch('/api/reviews/reply', {
-        method: 'POST',
+        method: editingReplyId ? 'PUT' : 'POST', // Use PUT for editing
         headers: {
           'Content-Type': 'application/json',
         },
@@ -79,25 +82,91 @@ const VideoDetails = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setReviews(
-          reviews.map((review) =>
-            review.id === reviewId
-              ? { ...review, replies: [...(review.replies || []), data.reply] }
-              : review
-          )
-        );
-        setReplyComment('');
-        setNotification({ message: 'Reply submitted successfully.', type: 'success' });
+
+        if (data && data.reply) {
+          setReviews(
+            reviews.map((review) =>
+              review.id === reviewId
+                ? { ...review, adminReply: data.reply }
+                : review
+            )
+          );
+          setReplyComments((prev) => ({ ...prev, [reviewId]: '' }));
+          setEditingReplyId(null);
+          setNotification({
+            message: editingReplyId ? 'Reply edited successfully.' : 'Reply submitted successfully.',
+            type: 'success',
+          });
+        } else {
+          setNotification({
+            message: 'Invalid reply data received from server.',
+            type: 'error',
+          });
+        }
       } else {
         const errorData = await response.json();
-        setNotification({ message: `Error submitting reply: ${errorData.error}`, type: 'error' });
+        setNotification({
+          message: `Error submitting reply: ${errorData.error}`,
+          type: 'error',
+        });
       }
     } catch (error) {
       console.error('Error submitting reply:', error);
-      setNotification({ message: 'An error occurred while submitting your reply.', type: 'error' });
+      setNotification({
+        message: 'An error occurred while submitting your reply.',
+        type: 'error',
+      });
     } finally {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
+  };
+
+  const handleDeleteReply = async (reviewId, replyId) => {
+    if (userRole !== 'admin') {
+      setNotification({ message: 'Only admins can delete replies.', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/reviews/reply', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ replyId, userId }),
+      });
+
+      if (response.ok) {
+        setReviews(
+          reviews.map((review) =>
+            review.id === reviewId
+              ? { ...review, adminReply: null }
+              : review
+          )
+        );
+        setNotification({ message: 'Reply deleted successfully.', type: 'success' });
+      } else {
+        const errorData = await response.json();
+        setNotification({
+          message: `Error deleting reply: ${errorData.error}`,
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting reply:', error);
+      setNotification({
+        message: 'An error occurred while deleting the reply.',
+        type: 'error',
+      });
+    } finally {
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+    }
+  };
+
+  const handleEditReply = (reviewId, currentComment) => {
+    setEditingReplyId(reviewId);
+    setReplyComments((prev) => ({ ...prev, [reviewId]: currentComment }));
   };
 
   const handleReviewSubmit = async () => {
@@ -131,11 +200,17 @@ const VideoDetails = () => {
         setNewComment('');
       } else {
         const errorData = await response.json();
-        setNotification({ message: `Error submitting review: ${errorData.error}`, type: 'error' });
+        setNotification({
+          message: `Error submitting review: ${errorData.error}`,
+          type: 'error',
+        });
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      setNotification({ message: 'An error occurred while submitting your review.', type: 'error' });
+      setNotification({
+        message: 'An error occurred while submitting your review.',
+        type: 'error',
+      });
     } finally {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
@@ -156,14 +231,25 @@ const VideoDetails = () => {
         setNotification({ message: 'Review deleted successfully.', type: 'success' });
       } else {
         const errorData = await response.json();
-        setNotification({ message: `Error deleting review: ${errorData.error}`, type: 'error' });
+        setNotification({
+          message: `Error deleting review: ${errorData.error}`,
+          type: 'error',
+        });
       }
     } catch (error) {
       console.error('Error deleting review:', error);
-      setNotification({ message: 'An error occurred while deleting your review.', type: 'error' });
+      setNotification({
+        message: 'An error occurred while deleting your review.',
+        type: 'error',
+      });
     } finally {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
+  };
+
+  // Placeholder for handleEditReview function if you plan to implement editing reviews
+  const handleEditReview = (review) => {
+    // Implementation for editing reviews
   };
 
   if (!video) {
@@ -203,6 +289,7 @@ const VideoDetails = () => {
             {new Date(video.createdAt).toLocaleString()}
           </p>
         </div>
+
         <div className={styles.reviewsSection}>
           <h2 className={styles.reviewTitle}>Reviews</h2>
           {reviews.length > 0 ? (
@@ -232,31 +319,46 @@ const VideoDetails = () => {
                     </button>
                   </div>
                 )}
-                {review.replies && review.replies.length > 0 && (
-                  <div className={styles.replies}>
-                    {review.replies.map((reply) => (
-                      <div key={reply.id} className={styles.reply}>
-                        <p>
-                          <strong>
-                            {reply.userId === 'admin'
-                              ? 'Admin'
-                              : reply.userId === video.uploaderId
-                              ? 'Uploader'
-                              : 'User'}
-                            :
-                          </strong>{' '}
-                          {reply.comment}
-                        </p>
+
+                {/* Display Admin Reply */}
+                {review.adminReply && (
+                  <div className={styles.adminReply}>
+                    <p>
+                      <strong>Admin Reply:</strong> {review.adminReply.comment}
+                    </p>
+                    {userRole === 'admin' && (
+                      <div className={styles.replyActions}>
+                        <button
+                          className={`${styles.button} ${styles.btnPrimary}`}
+                          onClick={() =>
+                            handleEditReply(review.id, review.adminReply.comment)
+                          }
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className={`${styles.button} ${styles.btnPrimary}`}
+                          onClick={() => handleDeleteReply(review.id, review.adminReply.id)}
+                        >
+                          Delete
+                        </button>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
-                {userRole === 'admin' && (
+
+                {/* Admin Reply Form */}
+                {userRole === 'admin' && !review.adminReply && (
                   <div className={styles.replyForm}>
                     <textarea
                       className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-                      value={replyComment}
-                      onChange={(e) => setReplyComment(e.target.value)}
+                      value={replyComments[review.id] || ''}
+                      onChange={(e) =>
+                        setReplyComments((prev) => ({
+                          ...prev,
+                          [review.id]: e.target.value,
+                        }))
+                      }
                       placeholder="Write your reply here..."
                     />
                     <button
@@ -267,11 +369,35 @@ const VideoDetails = () => {
                     </button>
                   </div>
                 )}
+
+                {/* Admin Reply Editing Form */}
+                {userRole === 'admin' && editingReplyId === review.id && (
+                  <div className={styles.replyForm}>
+                    <textarea
+                      className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                      value={replyComments[review.id] || ''}
+                      onChange={(e) =>
+                        setReplyComments((prev) => ({
+                          ...prev,
+                          [review.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Edit your reply here..."
+                    />
+                    <button
+                      className={`${styles.button} ${styles.btnPrimary}`}
+                      onClick={() => handleReplySubmit(review.id)}
+                    >
+                      Update Reply
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           ) : (
             <p>No reviews yet.</p>
           )}
+
           <div className={styles.reviewForm}>
             <h3 className={styles.reviewFormTitle}>
               {editingReviewId ? 'Edit Your Review' : 'Write a Review'}
@@ -314,6 +440,5 @@ const VideoDetails = () => {
     </>
   );
 };
-      
+
 export default VideoDetails;
-                    

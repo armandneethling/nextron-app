@@ -11,7 +11,7 @@
   font-weight: 700;
   text-align: center;
   margin-bottom: var(--spacing-unit);
-  color: var(--primary-color); 
+  color: var(--primary-color);
 }
 
 .description {
@@ -28,14 +28,14 @@
 
 .subHeader {
   font-size: var(--font-size-lg);
-  color: var(--primary-color); 
+  color: var(--primary-color);
   font-weight: 700;
   margin-bottom: calc(var(--spacing-unit) * 0.5);
 }
 
 .info {
-  font-size: var(--font-size-base); 
-  color: white; 
+  font-size: var(--font-size-base);
+  color: white;
   margin-bottom: calc(var(--spacing-unit) * 0.5);
   padding-left: 15px;
   line-height: 1.5;
@@ -154,6 +154,8 @@
 
 .reviewActions {
   margin-top: var(--spacing-unit);
+  display: flex;
+  gap: 10px;
 }
 
 .reply {
@@ -183,6 +185,26 @@
   font-weight: 700;
   margin-bottom: var(--spacing-unit);
   color: var(--color2);
+}
+
+.adminReply {
+  margin-top: var(--spacing-unit);
+  margin-left: 20px;
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: #e8f4fc;
+  border-left: 4px solid var(--primary-color);
+}
+
+.adminReply p {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.replyActions {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--spacing-unit);
 }
 
 .alert {
