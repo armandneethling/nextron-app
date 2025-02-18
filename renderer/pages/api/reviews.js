@@ -5,42 +5,53 @@ import defineReplyModel from '../../../models/Reply';
 import defineVideoModel from '../../../models/Video';
 
 const Review = defineReviewModel(sequelize);
-const Video = defineVideoModel(sequelize);
 const Reply = defineReplyModel(sequelize);
+const Video = defineVideoModel(sequelize);
 
 Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
 Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
-Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'reviewReplies' });
 Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
 const handler = nextConnect();
 
 handler.post(async (req, res) => {
-  const { videoId, userId, rating, comment } = req.body;
+  const { videoId, userId, rating, comment, reviewId } = req.body;
 
-  if (!videoId || !userId || rating == null || !comment) {
+  if (!videoId || !userId || !comment || (reviewId && rating !== undefined)) {
     return res.status(400).json({ error: 'Invalid data.' });
   }
 
   try {
-    const video = await Video.findByPk(videoId);
-
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found.' });
+    if (reviewId) {
+      const review = await Review.findByPk(reviewId);
+      if (!review) {
+        return res.status(404).json({ error: 'Review not found.' });
+      }
+      const reply = await Reply.create({
+        reviewId,
+        userId,
+        comment,
+        createdAt: new Date(),
+      });
+      res.status(201).json({ reply });
+    } else {
+      const video = await Video.findByPk(videoId);
+      if (!video) {
+        return res.status(404).json({ error: 'Video not found.' });
+      }
+      const review = await Review.create({
+        videoId,
+        userId,
+        rating,
+        comment,
+        createdAt: new Date(),
+      });
+      res.status(201).json({ review });
     }
-
-    const review = await Review.create({
-      videoId,
-      userId,
-      rating,
-      comment,
-      createdAt: new Date(),
-    });
-
-    res.status(201).json({ review });
   } catch (error) {
-    console.error('Error adding review:', error);
-    res.status(500).json({ error: 'Error adding review.' });
+    console.error('Error adding review or reply:', error);
+    res.status(500).json({ error: 'Error adding review or reply.' });
   }
 });
 

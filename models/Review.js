@@ -31,6 +31,10 @@ function defineReviewModel(sequelize) {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      replyList: {
+        type: DataTypes.JSON,
+        defaultValue: [],
+      },
     },
     {
       freezeTableName: true,

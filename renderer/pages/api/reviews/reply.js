@@ -1,11 +1,11 @@
 import withSession from '../../../../utils/withSession';
-import Review from '../../../../models/Review';
+import db from '../../../../models';
 
 const reviewHandler = async (req, res) => {
   if (req.method === 'POST' || req.method === 'PUT') {
     const { videoId, userId, rating, comment, reviewId } = req.body;
 
-    if (!videoId || !userId || !rating || !comment) {
+    if (!videoId || !userId || !comment || (req.method === 'POST' && !reviewId && !rating)) {
       console.log('Missing required fields:', { videoId, userId, rating, comment, reviewId });
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -13,10 +13,22 @@ const reviewHandler = async (req, res) => {
     try {
       let review;
       if (req.method === 'POST') {
-        review = await Review.create({ videoId, userId, rating, comment });
-        console.log('Review created:', review);
+        if (reviewId) {
+          review = await db.Review.findByPk(reviewId);
+          if (!review) {
+            console.log('Review not found:', reviewId);
+            return res.status(404).json({ error: 'Review not found' });
+          }
+          review.replies = review.replies || [];
+          review.replies.push({ userId, comment });
+          await review.save();
+          console.log('Reply added:', review);
+        } else {
+          review = await db.Review.create({ videoId, userId, rating, comment });
+          console.log('Review created:', review);
+        }
       } else if (req.method === 'PUT') {
-        review = await Review.findByPk(reviewId);
+        review = await db.Review.findByPk(reviewId);
         if (!review) {
           console.log('Review not found:', reviewId);
           return res.status(404).json({ error: 'Review not found' });

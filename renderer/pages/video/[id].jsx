@@ -19,164 +19,55 @@ const VideoDetails = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const storedUserId = localStorage.getItem('userId');
-        const storedUserRole = localStorage.getItem('userRole');
-        
-        if (storedUserId && storedUserRole) {
-          setUserId(storedUserId);
-          setUserRole(storedUserRole);
-        } else {
-          router.push('/login');
+      const storedUserId = localStorage.getItem('userId');
+      const storedUserRole = localStorage.getItem('userRole');
+      if (storedUserId) {
+        setUserId(storedUserId);
+        setUserRole(storedUserRole);
+      } else {
+        router.push('/login');
+      }
+    };
+
+    const fetchVideo = async () => {
+      if (id) {
+        try {
+          const response = await fetch(`/api/getVideos?id=${id}`, { cache: 'no-store' });
+          const result = await response.json();
+          setVideo(result);
+          setReviews(result.reviews || []);
+        } catch (error) {
+          console.error('Error fetching video:', error);
         }
-      } catch (error) {
-        console.error('Error fetching user:', error);
       }
     };
 
     fetchUser();
-
-    if (id) {
-      const fetchVideo = async () => {
-        try {
-          const response = await fetch(`/api/getVideos?id=${id}`, { cache: 'no-store' });
-          if (response.ok) {
-            const result = await response.json();
-            setVideo(result);
-            setReviews(result.reviews || []);
-          } else {
-            console.error('Failed to fetch video:', await response.text());
-          }
-        } catch (error) {
-          console.error('Error fetching video:', error);
-        }
-      };
-      fetchVideo();
-    }
+    fetchVideo();
   }, [id, router]);
 
-  const handleReviewSubmit = async () => {
-    if (newRating === 0 || !newComment.trim()) {
-      setNotification({ message: 'Please provide a rating and a comment.', type: 'error' });
+  const handleReplySubmit = async (reviewId) => {
+    if (userRole !== 'admin') {
+      setNotification({ message: 'Only admins can reply to reviews.', type: 'error' });
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       return;
     }
-
-    const reviewData = {
-      videoId: video.id,
-      userId,
-      rating: newRating,
-      comment: newComment.trim(),
-    };
-
-    console.log('Submitting review data:', reviewData);
-
-    try {
-      let response;
-      if (editingReviewId) {
-        response = await fetch('/api/reviews', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...reviewData,
-            reviewId: editingReviewId,
-          }),
-        });
-      } else {
-        response = await fetch('/api/reviews', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(reviewData),
-        });
-      }
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Review submission response:', data);
-        if (editingReviewId) {
-          setReviews(
-            reviews.map((review) =>
-              review.id === editingReviewId ? data.review : review
-            )
-          );
-          setEditingReviewId(null);
-        } else {
-          setReviews([...reviews, data.review]);
-        }
-        setNotification({ message: 'Review submitted successfully.', type: 'success' });
-        setNewRating(0);
-        setNewComment('');
-      } else {
-        const errorData = await response.json();
-        console.error('Error submitting review:', errorData);
-        setNotification({ message: `Error submitting review: ${errorData.error}`, type: 'error' });
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      setNotification({ message: 'An error occurred while submitting your review.', type: 'error' });
-    } finally {
-      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
-    }
-  };
-
-  const handleEditReview = (review) => {
-    setNewRating(review.rating);
-    setNewComment(review.comment);
-    setEditingReviewId(review.id);
-  };
-
-  const handleDeleteReview = async (reviewId) => {
-    const confirmed = window.confirm('Are you sure you want to delete this review?');
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch('/api/reviews', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          videoId: video.id,
-          reviewId,
-          userId,
-        }),
-      });
-
-      if (response.ok) {
-        setReviews(reviews.filter((review) => review.id !== reviewId));
-        setNotification({ message: 'Review deleted successfully.', type: 'success' });
-      } else {
-        const errorData = await response.json();
-        setNotification({ message: `Error deleting review: ${errorData.error}`, type: 'error' });
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      setNotification({ message: 'An error occurred while deleting your review.', type: 'error' });
-    } finally {
-      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
-    }
-  };
-
-  const handleReplySubmit = async (reviewId) => {
+  
     if (!replyComment.trim()) {
       setNotification({ message: 'Please write a reply.', type: 'error' });
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       return;
     }
-
+  
     const replyData = {
       videoId: video.id,
       reviewId,
       userId,
       comment: replyComment.trim(),
     };
-
+  
     console.log('Reply Data:', replyData);
-
+  
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
@@ -185,7 +76,7 @@ const VideoDetails = () => {
         },
         body: JSON.stringify(replyData),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setReviews(
@@ -207,6 +98,47 @@ const VideoDetails = () => {
     } finally {
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
+  };  
+
+  const handleReviewSubmit = async () => {
+    if (newRating === 0 || !newComment.trim()) {
+      setNotification({ message: 'Please provide a rating and a comment.', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+      return;
+    }
+
+    const reviewData = {
+      videoId: video.id,
+      userId,
+      rating: newRating,
+      comment: newComment.trim(),
+    };
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setReviews([...reviews, data.review]);
+        setNotification({ message: 'Review submitted successfully.', type: 'success' });
+        setNewRating(0);
+        setNewComment('');
+      } else {
+        const errorData = await response.json();
+        setNotification({ message: `Error submitting review: ${errorData.error}`, type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      setNotification({ message: 'An error occurred while submitting your review.', type: 'error' });
+    } finally {
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+    }
   };
 
   if (!video) {
@@ -217,7 +149,7 @@ const VideoDetails = () => {
     <>
       <Header />
       <div className={styles.container}>
-        <h1 className={styles.title}>{video.title}</h1>
+      <h1 className={styles.title}>{video.title}</h1>
         <div className={styles.thumbnailContainer}>
           <img
             src={`/uploads/${video.thumbnail}`}
@@ -285,7 +217,7 @@ const VideoDetails = () => {
                     ))}
                   </div>
                 )}
-                {(userRole === 'admin') && (
+                {userRole === 'admin' && (
                   <div className={styles.replyForm}>
                     <textarea
                       className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}

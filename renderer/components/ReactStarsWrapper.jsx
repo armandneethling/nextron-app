@@ -6,7 +6,8 @@ const ReactStarsWrapper = ({
   value = 0,
   edit = true,
   size = 24,
-  activeColor = "#ffd700"
+  activeColor = "#ffd700",
+  onChange = () => {}
 }) => {
   return (
     <ReactStars
@@ -15,6 +16,7 @@ const ReactStarsWrapper = ({
       edit={edit}
       size={size}
       activeColor={activeColor}
+      onChange={onChange}
     />
   );
 };
