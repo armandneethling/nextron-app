@@ -201,6 +201,13 @@
   color: var(--text-color);
 }
 
+.reviewEditForm {
+  margin-top: var(--spacing-unit);
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: var(--background-color);
+}
+
 .replyActions {
   display: flex;
   gap: 10px;
@@ -209,7 +216,7 @@
 
 .alert {
   text-align: center;
-  margin-top: 0;
+  margin-top: var(--spacing-unit);
 }
 
 .alert--success {

@@ -15,7 +15,9 @@ const VideoDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [replyComments, setReplyComments] = useState({});
   const [editingReviewId, setEditingReviewId] = useState(null);
-  const [editingReplyId, setEditingReplyId] = useState(null); // Added to track editing reply
+  const [editingReplyId, setEditingReplyId] = useState(null);
+  const [updatedRating, setUpdatedRating] = useState(0);
+  const [updatedComment, setUpdatedComment] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
@@ -65,15 +67,15 @@ const VideoDetails = () => {
     }
 
     const replyData = {
-      videoId: video.id,
       reviewId,
       userId,
       comment: replyComment.trim(),
+      ...(editingReplyId && { replyId: editingReplyId }),
     };
 
     try {
       const response = await fetch('/api/reviews/reply', {
-        method: editingReplyId ? 'PUT' : 'POST', // Use PUT for editing
+        method: editingReplyId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -84,17 +86,26 @@ const VideoDetails = () => {
         const data = await response.json();
 
         if (data && data.reply) {
-          setReviews(
-            reviews.map((review) =>
+          setReviews((prevReviews) =>
+            prevReviews.map((review) =>
               review.id === reviewId
-                ? { ...review, adminReply: data.reply }
+                ? {
+                    ...review,
+                    replies: editingReplyId
+                      ? review.replies.map((r) =>
+                          r.id === editingReplyId ? data.reply : r
+                        )
+                      : [...(review.replies || []), data.reply],
+                  }
                 : review
             )
           );
           setReplyComments((prev) => ({ ...prev, [reviewId]: '' }));
           setEditingReplyId(null);
           setNotification({
-            message: editingReplyId ? 'Reply edited successfully.' : 'Reply submitted successfully.',
+            message: editingReplyId
+              ? 'Reply edited successfully.'
+              : 'Reply submitted successfully.',
             type: 'success',
           });
         } else {
@@ -138,10 +149,13 @@ const VideoDetails = () => {
       });
 
       if (response.ok) {
-        setReviews(
-          reviews.map((review) =>
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
             review.id === reviewId
-              ? { ...review, adminReply: null }
+              ? {
+                  ...review,
+                  replies: review.replies.filter((reply) => reply.id !== replyId),
+                }
               : review
           )
         );
@@ -164,8 +178,8 @@ const VideoDetails = () => {
     }
   };
 
-  const handleEditReply = (reviewId, currentComment) => {
-    setEditingReplyId(reviewId);
+  const handleEditReply = (replyId, reviewId, currentComment) => {
+    setEditingReplyId(replyId);
     setReplyComments((prev) => ({ ...prev, [reviewId]: currentComment }));
   };
 
@@ -247,9 +261,64 @@ const VideoDetails = () => {
     }
   };
 
-  // Placeholder for handleEditReview function if you plan to implement editing reviews
   const handleEditReview = (review) => {
-    // Implementation for editing reviews
+    setEditingReviewId(review.id);
+    setUpdatedRating(review.rating);
+    setUpdatedComment(review.comment);
+  };
+
+  const handleUpdateReview = async () => {
+    if (updatedRating === 0 || !updatedComment.trim()) {
+      setNotification({ message: 'Please provide a rating and a comment.', type: 'error' });
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+      return;
+    }
+
+    const reviewData = {
+      reviewId: editingReviewId,
+      userId,
+      rating: updatedRating,
+      comment: updatedComment.trim(),
+    };
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
+            review.id === editingReviewId ? { ...review, ...data.review } : review
+          )
+        );
+
+        setNotification({ message: 'Review updated successfully.', type: 'success' });
+        setEditingReviewId(null);
+        setUpdatedRating(0);
+        setUpdatedComment('');
+      } else {
+        const errorData = await response.json();
+        setNotification({
+          message: `Error updating review: ${errorData.error}`,
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating review:', error);
+      setNotification({
+        message: 'An error occurred while updating your review.',
+        type: 'error',
+      });
+    } finally {
+      setTimeout(() => setNotification({ message: '', type: '' }), 3000);
+    }
   };
 
   if (!video) {
@@ -285,9 +354,7 @@ const VideoDetails = () => {
           <p className={styles.subHeader}>Duration:</p>
           <p className={styles.info}>{video.duration} seconds</p>
           <p className={styles.subHeader}>Uploaded at:</p>
-          <p className={styles.info}>
-            {new Date(video.createdAt).toLocaleString()}
-          </p>
+          <p className={styles.info}>{new Date(video.createdAt).toLocaleString()}</p>
         </div>
 
         <div className={styles.reviewsSection}>
@@ -295,146 +362,193 @@ const VideoDetails = () => {
           {reviews.length > 0 ? (
             reviews.map((review) => (
               <div key={review.id} className={styles.review}>
-                <ReactStarsWrapper
-                  count={5}
-                  value={review.rating}
-                  edit={false}
-                  size={24}
-                  activeColor="#ffd700"
-                />
-                <p>{review.comment}</p>
-                {review.userId === userId && (
-                  <div className={styles.reviewActions}>
-                    <button
-                      className={`${styles.button} ${styles.btnPrimary}`}
-                      onClick={() => handleEditReview(review)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className={`${styles.button} ${styles.btnPrimary}`}
-                      onClick={() => handleDeleteReview(review.id)}
-                    >
-                      Delete
-                    </button>
+                {editingReviewId === review.id ? (
+                  <div className={styles.reviewEditForm}>
+                    <ReactStarsWrapper
+                      count={5}
+                      value={updatedRating}
+                      onChange={(rating) => setUpdatedRating(rating)}
+                      size={24}
+                      activeColor="#ffd700"
+                    />
+                    <textarea
+                      className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                      value={updatedComment}
+                      onChange={(e) => setUpdatedComment(e.target.value)}
+                      placeholder="Edit your review..."
+                    />
+                    <div className={styles.buttonContainer}>
+                      <button
+                        className={`${styles.button} ${styles.btnPrimary}`}
+                        onClick={handleUpdateReview}
+                      >
+                        Update Review
+                      </button>
+                      <button
+                        className={`${styles.button} ${styles.btnSecondary}`}
+                        onClick={() => {
+                          setEditingReviewId(null);
+                          setUpdatedRating(0);
+                          setUpdatedComment('');
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                )}
-
-                {/* Display Admin Reply */}
-                {review.adminReply && (
-                  <div className={styles.adminReply}>
-                    <p>
-                      <strong>Admin Reply:</strong> {review.adminReply.comment}
-                    </p>
-                    {userRole === 'admin' && (
-                      <div className={styles.replyActions}>
+                ) : (
+                  <>
+                    <ReactStarsWrapper
+                      count={5}
+                      value={review.rating}
+                      edit={false}
+                      size={24}
+                      activeColor="#ffd700"
+                    />
+                    <p>{review.comment}</p>
+                    {review.userId === userId && (
+                      <div className={styles.reviewActions}>
                         <button
                           className={`${styles.button} ${styles.btnPrimary}`}
-                          onClick={() =>
-                            handleEditReply(review.id, review.adminReply.comment)
-                          }
+                          onClick={() => handleEditReview(review)}
                         >
                           Edit
                         </button>
                         <button
                           className={`${styles.button} ${styles.btnPrimary}`}
-                          onClick={() => handleDeleteReply(review.id, review.adminReply.id)}
+                          onClick={() => handleDeleteReview(review.id)}
                         >
                           Delete
                         </button>
                       </div>
                     )}
-                  </div>
+                  </>
                 )}
+                {review.replies && review.replies.length > 0 && (
+  <div className={styles.replies}>
+    {review.replies.map((reply) => (
+      <div key={reply.id} className={styles.reply}>
+        <p>
+          <strong>
+            {reply.userId === userId && userRole === 'admin'
+              ? 'Admin'
+              : reply.userId === video.uploaderId
+              ? 'Uploader'
+              : 'User'}
+            :
+          </strong>{' '}
+          {reply.comment}
+        </p>
+        {userRole === 'admin' && reply.userId === userId && (
+          <div className={styles.replyActions}>
+            <button
+              className={`${styles.button} ${styles.btnPrimary}`}
+              onClick={() => handleEditReply(reply.id, review.id, reply.comment)}
+            >
+              Edit
+            </button>
+            <button
+              className={`${styles.button} ${styles.btnPrimary}`}
+              onClick={() => handleDeleteReply(review.id, reply.id)}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
-                {/* Admin Reply Form */}
-                {userRole === 'admin' && !review.adminReply && (
-                  <div className={styles.replyForm}>
-                    <textarea
-                      className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-                      value={replyComments[review.id] || ''}
-                      onChange={(e) =>
-                        setReplyComments((prev) => ({
-                          ...prev,
-                          [review.id]: e.target.value,
-                        }))
-                      }
-                      placeholder="Write your reply here..."
-                    />
-                    <button
-                      className={`${styles.button} ${styles.btnPrimary}`}
-                      onClick={() => handleReplySubmit(review.id)}
-                    >
-                      Submit Reply
-                    </button>
-                  </div>
-                )}
-
-                {/* Admin Reply Editing Form */}
-                {userRole === 'admin' && editingReplyId === review.id && (
-                  <div className={styles.replyForm}>
-                    <textarea
-                      className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-                      value={replyComments[review.id] || ''}
-                      onChange={(e) =>
-                        setReplyComments((prev) => ({
-                          ...prev,
-                          [review.id]: e.target.value,
-                        }))
-                      }
-                      placeholder="Edit your reply here..."
-                    />
-                    <button
-                      className={`${styles.button} ${styles.btnPrimary}`}
-                      onClick={() => handleReplySubmit(review.id)}
-                    >
-                      Update Reply
-                    </button>
-                  </div>
-                )}
+                {userRole === 'admin' &&
+                  !review.replies?.some((r) => r.userId === userId) &&
+                  editingReplyId === null && (
+                    <div className={styles.replyForm}>
+                      <textarea
+                        className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                        value={replyComments[review.id] || ''}
+                        onChange={(e) =>
+                          setReplyComments((prev) => ({
+                            ...prev,
+                            [review.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Write your reply here..."
+                      />
+                      <button
+                        className={`${styles.button} ${styles.btnPrimary}`}
+                        onClick={() => handleReplySubmit(review.id)}
+                      >
+                        Submit Reply
+                      </button>
+                    </div>
+                  )}
+                {userRole === 'admin' &&
+                  editingReplyId &&
+                  review.replies?.some((r) => r.id === editingReplyId) && (
+                    <div className={styles.replyForm}>
+                      <textarea
+                        className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                        value={replyComments[review.id] || ''}
+                        onChange={(e) =>
+                          setReplyComments((prev) => ({
+                            ...prev,
+                            [review.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Edit your reply here..."
+                      />
+                      <button
+                        className={`${styles.button} ${styles.btnPrimary}`}
+                        onClick={() => handleReplySubmit(review.id)}
+                      >
+                        Update Reply
+                      </button>
+                    </div>
+                  )}
               </div>
             ))
           ) : (
             <p>No reviews yet.</p>
           )}
-
-          <div className={styles.reviewForm}>
-            <h3 className={styles.reviewFormTitle}>
-              {editingReviewId ? 'Edit Your Review' : 'Write a Review'}
-            </h3>
-            <ReactStarsWrapper
-              count={5}
-              value={newRating}
-              onChange={(rating) => setNewRating(rating)}
-              size={24}
-              activeColor="#ffd700"
-            />
-            <textarea
-              className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your review here..."
-            />
-            <div className={styles.buttonContainer}>
-              <button
-                className={`${styles.button} ${styles.btnPrimary}`}
-                onClick={handleReviewSubmit}
-              >
-                {editingReviewId ? 'Update Review' : 'Submit Review'}
-              </button>
-              {notification.message && (
-                <div
-                  className={`${styles.alert} ${
-                    notification.type === 'success'
-                      ? styles['alert--success']
-                      : styles['alert--error']
-                  }`}
+          {!editingReviewId && (
+            <div className={styles.reviewForm}>
+              <h3 className={styles.reviewFormTitle}>Write a Review</h3>
+              <ReactStarsWrapper
+                count={5}
+                value={newRating}
+                onChange={(rating) => setNewRating(rating)}
+                size={24}
+                activeColor="#ffd700"
+              />
+              <textarea
+                className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write your review here..."
+              />
+              <div className={styles.buttonContainer}>
+                <button
+                  className={`${styles.button} ${styles.btnPrimary}`}
+                  onClick={handleReviewSubmit}
                 >
-                  {notification.message}
-                </div>
-              )}
+                  Submit Review
+                </button>
+              </div>
             </div>
-          </div>
+          )}
+
+          {notification.message && (
+            <div
+              className={`${styles.alert} ${
+                notification.type === 'success'
+                  ? styles['alert--success']
+                  : styles['alert--error']
+              }`}
+            >
+              {notification.message}
+            </div>
+          )}
         </div>
       </div>
     </>
