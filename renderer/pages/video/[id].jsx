@@ -69,6 +69,8 @@ const VideoDetails = () => {
       comment: newComment.trim(),
     };
 
+    console.log('Submitting review data:', reviewData);
+
     try {
       let response;
       if (editingReviewId) {
@@ -94,6 +96,7 @@ const VideoDetails = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Review submission response:', data);
         if (editingReviewId) {
           setReviews(
             reviews.map((review) =>
@@ -109,6 +112,7 @@ const VideoDetails = () => {
         setNewComment('');
       } else {
         const errorData = await response.json();
+        console.error('Error submitting review:', errorData);
         setNotification({ message: `Error submitting review: ${errorData.error}`, type: 'error' });
       }
     } catch (error) {
@@ -212,11 +216,6 @@ const VideoDetails = () => {
   return (
     <>
       <Header />
-      {notification.message && (
-        <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
-          {notification.message}
-        </div>
-      )}
       <div className={styles.container}>
         <h1 className={styles.title}>{video.title}</h1>
         <div className={styles.thumbnailContainer}>
@@ -303,27 +302,32 @@ const VideoDetails = () => {
             <p>No reviews yet.</p>
           )}
 
-          {userRole && (
-            <div className={styles.reviewForm}>
-              <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
-              <ReactStarsWrapper
-                count={5}
-                value={newRating}
-                onChange={(rating) => setNewRating(rating)}
-                size={24}
-                activeColor="#ffd700"
-              />
-              <textarea
-                className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write your review here..."
-              />
+          <div className={styles.reviewForm}>
+            <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
+            <ReactStarsWrapper
+              count={5}
+              value={newRating}
+              onChange={(rating) => setNewRating(rating)}
+              size={24}
+              activeColor="#ffd700"
+            />
+            <textarea
+              className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write your review here..."
+            />
+            <div className={styles.buttonContainer}>
               <button className={`${styles.button} ${styles.btnPrimary}`} onClick={handleReviewSubmit}>
                 {editingReviewId ? 'Update Review' : 'Submit Review'}
               </button>
+              {notification.message && (
+                <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+                  {notification.message}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </>

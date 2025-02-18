@@ -29,4 +29,4 @@ const updateRoleToAdminById = async (userId) => {
   }
 };
 
-updateRoleToAdminById('2ea85f59-811d-4ff5-bcb3-799b28d9d709');
+updateRoleToAdminById('a429973b-4578-4cf4-85b5-3b25b5d1f41e');

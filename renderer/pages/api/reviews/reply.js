@@ -1,37 +1,35 @@
 import withSession from '../../../../utils/withSession';
 import Review from '../../../../models/Review';
 
-const replyHandler = async (req, res) => {
-  if (req.method === 'POST') {
-    const { videoId, reviewId, userId, comment } = req.body;
+const reviewHandler = async (req, res) => {
+  if (req.method === 'POST' || req.method === 'PUT') {
+    const { videoId, userId, rating, comment, reviewId } = req.body;
 
-    if (!videoId || !reviewId || !userId || !comment) {
-      console.log('Missing required fields:', { videoId, reviewId, userId, comment });
+    if (!videoId || !userId || !rating || !comment) {
+      console.log('Missing required fields:', { videoId, userId, rating, comment, reviewId });
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-      console.log('Fetching review:', reviewId);
-      const review = await Review.findByPk(reviewId);
-      if (!review) {
-        console.log('Review not found:', reviewId);
-        return res.status(404).json({ error: 'Review not found' });
+      let review;
+      if (req.method === 'POST') {
+        review = await Review.create({ videoId, userId, rating, comment });
+        console.log('Review created:', review);
+      } else if (req.method === 'PUT') {
+        review = await Review.findByPk(reviewId);
+        if (!review) {
+          console.log('Review not found:', reviewId);
+          return res.status(404).json({ error: 'Review not found' });
+        }
+        review.rating = rating;
+        review.comment = comment;
+        await review.save();
+        console.log('Review updated:', review);
       }
 
-      const reply = {
-        userId,
-        comment,
-      };
-
-      console.log('Current replies:', review.replies);
-      review.replies = review.replies ? [...review.replies, reply] : [reply];
-      console.log('Updated replies:', review.replies);
-      await review.save();
-
-      console.log('Reply saved successfully');
-      res.status(200).json({ reply });
+      res.status(200).json({ review });
     } catch (error) {
-      console.error('Error saving reply:', error);
+      console.error('Error handling review:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   } else {
@@ -39,4 +37,4 @@ const replyHandler = async (req, res) => {
   }
 };
 
-export default withSession(replyHandler);
+export default withSession(reviewHandler);
