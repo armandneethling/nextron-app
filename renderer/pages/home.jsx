@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 export default function HomePage() {
   const [videos, setVideos] = useState([]);
+  const [videoToDelete, setVideoToDelete] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '' });
   const router = useRouter();
 
@@ -29,34 +30,43 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm('Are you sure you want to delete this video?');
-    if (!confirmed) return;
+  const handleDelete = (id) => {
+    setVideoToDelete(id);
+    setNotification({ message: 'Are you sure you want to delete this video?', type: 'warning' });
+  };
 
+  const confirmDelete = async () => {
+    if (!videoToDelete) return;
+  
     try {
       const response = await fetch('/api/deleteVideos', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: videoToDelete }),
       });
-
+  
       const result = await response.json();
       if (response.ok) {
-        setVideos(videos.filter((video) => video.id !== id));
+        setVideos((prevVideos) => prevVideos.filter((video) => video.id !== videoToDelete));
         setNotification({ message: 'Video deleted successfully!', type: 'success' });
-        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       } else {
         console.error('Failed to delete video:', result.error);
         setNotification({ message: 'Failed to delete video.', type: 'error' });
-        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       }
     } catch (error) {
       console.error('Error deleting video:', error);
       setNotification({ message: 'An error occurred while deleting the video.', type: 'error' });
+    } finally {
+      setVideoToDelete(null);
       setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     }
+  };
+  
+  const cancelDelete = () => {
+    setVideoToDelete(null);
+    setNotification({ message: '', type: '' });
   };
 
   const handleVideoClick = (id) => {
@@ -66,11 +76,33 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      {notification.message && (
-        <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
-          {notification.message}
-        </div>
-      )}
+      <div className={styles.alertContainer}>
+        {notification.message && (
+          <div
+            className={`${styles.alert} ${
+              notification.type === 'success'
+                ? styles['alert--success']
+                : notification.type === 'error'
+                ? styles['alert--error']
+                : notification.type === 'warning'
+                ? styles['alert--warning']
+                : ''
+            }`}
+          >
+            {notification.message}
+            {notification.type === 'warning' && (
+              <div className={styles.notificationActions}>
+                <button onClick={confirmDelete} className={styles.confirmButton}>
+                  Yes
+                </button>
+                <button onClick={cancelDelete} className={styles.cancelButton}>
+                  No
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div className={styles.container}>
         {videos.length > 0 ? (
           videos.map((video) => (

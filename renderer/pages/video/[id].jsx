@@ -356,7 +356,7 @@ const VideoDetails = () => {
           <p className={styles.subHeader}>Uploaded at:</p>
           <p className={styles.info}>{new Date(video.createdAt).toLocaleString()}</p>
         </div>
-
+  
         <div className={styles.reviewsSection}>
           <h2 className={styles.reviewTitle}>Reviews</h2>
           {reviews.length > 0 ? (
@@ -425,41 +425,43 @@ const VideoDetails = () => {
                   </>
                 )}
                 {review.replies && review.replies.length > 0 && (
-  <div className={styles.replies}>
-    {review.replies.map((reply) => (
-      <div key={reply.id} className={styles.reply}>
-        <p>
-          <strong>
-            {reply.userId === userId && userRole === 'admin'
-              ? 'Admin'
-              : reply.userId === video.uploaderId
-              ? 'Uploader'
-              : 'User'}
-            :
-          </strong>{' '}
-          {reply.comment}
-        </p>
-        {userRole === 'admin' && reply.userId === userId && (
-          <div className={styles.replyActions}>
-            <button
-              className={`${styles.button} ${styles.btnPrimary}`}
-              onClick={() => handleEditReply(reply.id, review.id, reply.comment)}
-            >
-              Edit
-            </button>
-            <button
-              className={`${styles.button} ${styles.btnPrimary}`}
-              onClick={() => handleDeleteReply(review.id, reply.id)}
-            >
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-)}
-
+                  <div className={styles.replies}>
+                    {review.replies.map((reply) => {
+                      const roleLabel =
+                        reply.userId === userId && userRole === 'admin'
+                          ? 'Admin'
+                          : reply.userId === video.uploaderId
+                          ? 'Uploader'
+                          : 'User';
+  
+                      return (
+                        <div key={reply.id} className={styles.reply}>
+                          <p>
+                            <strong>{roleLabel}:</strong> {reply.comment}
+                          </p>
+                          {userRole === 'admin' && reply.userId === userId && (
+                            <div className={styles.replyActions}>
+                              <button
+                                className={`${styles.button} ${styles.btnPrimary}`}
+                                onClick={() =>
+                                  handleEditReply(reply.id, review.id, reply.comment)
+                                }
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className={`${styles.button} ${styles.btnPrimary}`}
+                                onClick={() => handleDeleteReply(review.id, reply.id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 {userRole === 'admin' &&
                   !review.replies?.some((r) => r.userId === userId) &&
                   editingReplyId === null && (
@@ -534,25 +536,24 @@ const VideoDetails = () => {
                 >
                   Submit Review
                 </button>
+                {notification.message && (
+                  <div
+                    className={`${styles.alert} ${
+                      notification.type === 'success'
+                        ? styles['alert--success']
+                        : styles['alert--error']
+                    }`}
+                  >
+                    {notification.message}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-
-          {notification.message && (
-            <div
-              className={`${styles.alert} ${
-                notification.type === 'success'
-                  ? styles['alert--success']
-                  : styles['alert--error']
-              }`}
-            >
-              {notification.message}
             </div>
           )}
         </div>
       </div>
     </>
-  );
+  );  
 };
 
 export default VideoDetails;

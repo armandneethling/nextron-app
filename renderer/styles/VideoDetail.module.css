@@ -216,7 +216,8 @@
 
 .alert {
   text-align: center;
-  margin-top: var(--spacing-unit);
+  margin-top: 0;
+  flex: 1;
 }
 
 .alert--success {

@@ -124,11 +124,6 @@ function UploadForm({ onUpload }) {
 
   return (
     <div>
-      {notification.message && (
-        <p className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
-          {notification.message}
-        </p>
-      )}
       <form onSubmit={handleSubmit} className={styles.form}>
         <label htmlFor="title">
           <span>Title:</span>
@@ -211,6 +206,18 @@ function UploadForm({ onUpload }) {
         <div className={styles.uploadInstructions}>
           <p>For best results, please upload videos and images with a 16:9 aspect ratio.</p>
         </div>
+
+        {notification.message && (
+          <p
+            className={`${styles.alert} ${
+              notification.type === 'success'
+                ? styles['alert--success']
+                : styles['alert--error']
+            }`}
+          >
+            {notification.message}
+          </p>
+        )}
 
         <button
           type="submit"
