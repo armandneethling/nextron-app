@@ -31,11 +31,13 @@ fs
     db[model.name] = model;
   });
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
+const defineReviewModel = require('./Review');
+const defineReplyModel = require('./Reply');
+const defineVideoModel = require('./Video');
+
+db.Review = defineReviewModel(sequelize);
+db.Reply = defineReplyModel(sequelize);
+db.Video = defineVideoModel(sequelize);
 
 db.Video.hasMany(db.Review, { foreignKey: 'videoId', as: 'reviews' });
 db.Review.belongsTo(db.Video, { foreignKey: 'videoId', as: 'video' });
