@@ -37,6 +37,11 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+db.Video.hasMany(db.Review, { foreignKey: 'videoId', as: 'reviews' });
+db.Review.belongsTo(db.Video, { foreignKey: 'videoId', as: 'video' });
+db.Review.hasMany(db.Reply, { foreignKey: 'reviewId', as: 'reviewReplies' });
+db.Reply.belongsTo(db.Review, { foreignKey: 'reviewId', as: 'review' });
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
