@@ -203,7 +203,6 @@ const VideoDetails = () => {
             {new Date(video.createdAt).toLocaleString()}
           </p>
         </div>
-
         <div className={styles.reviewsSection}>
           <h2 className={styles.reviewTitle}>Reviews</h2>
           {reviews.length > 0 ? (
@@ -219,8 +218,18 @@ const VideoDetails = () => {
                 <p>{review.comment}</p>
                 {review.userId === userId && (
                   <div className={styles.reviewActions}>
-                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleEditReview(review)}>Edit</button>
-                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleDeleteReview(review.id)}>Delete</button>
+                    <button
+                      className={`${styles.button} ${styles.btnPrimary}`}
+                      onClick={() => handleEditReview(review)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className={`${styles.button} ${styles.btnPrimary}`}
+                      onClick={() => handleDeleteReview(review.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 )}
                 {review.replies && review.replies.length > 0 && (
@@ -234,7 +243,7 @@ const VideoDetails = () => {
                               : reply.userId === video.uploaderId
                               ? 'Uploader'
                               : 'User'}
-                          :
+                            :
                           </strong>{' '}
                           {reply.comment}
                         </p>
@@ -250,7 +259,12 @@ const VideoDetails = () => {
                       onChange={(e) => setReplyComment(e.target.value)}
                       placeholder="Write your reply here..."
                     />
-                    <button className={`${styles.button} ${styles.btnPrimary}`} onClick={() => handleReplySubmit(review.id)}>Submit Reply</button>
+                    <button
+                      className={`${styles.button} ${styles.btnPrimary}`}
+                      onClick={() => handleReplySubmit(review.id)}
+                    >
+                      Submit Reply
+                    </button>
                   </div>
                 )}
               </div>
@@ -258,9 +272,10 @@ const VideoDetails = () => {
           ) : (
             <p>No reviews yet.</p>
           )}
-
           <div className={styles.reviewForm}>
-            <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
+            <h3 className={styles.reviewFormTitle}>
+              {editingReviewId ? 'Edit Your Review' : 'Write a Review'}
+            </h3>
             <ReactStarsWrapper
               count={5}
               value={newRating}
@@ -275,11 +290,20 @@ const VideoDetails = () => {
               placeholder="Write your review here..."
             />
             <div className={styles.buttonContainer}>
-              <button className={`${styles.button} ${styles.btnPrimary}`} onClick={handleReviewSubmit}>
+              <button
+                className={`${styles.button} ${styles.btnPrimary}`}
+                onClick={handleReviewSubmit}
+              >
                 {editingReviewId ? 'Update Review' : 'Submit Review'}
               </button>
               {notification.message && (
-                <div className={`${styles.alert} ${notification.type === 'success' ? styles['alert--success'] : styles['alert--error']}`}>
+                <div
+                  className={`${styles.alert} ${
+                    notification.type === 'success'
+                      ? styles['alert--success']
+                      : styles['alert--error']
+                  }`}
+                >
                   {notification.message}
                 </div>
               )}
@@ -290,5 +314,6 @@ const VideoDetails = () => {
     </>
   );
 };
-
+      
 export default VideoDetails;
+                    
