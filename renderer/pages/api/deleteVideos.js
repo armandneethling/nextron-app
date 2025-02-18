@@ -1,28 +1,62 @@
-import { createRouter } from 'next-connect';
+import nextConnect from 'next-connect';
+import { sequelize } from '../../../utils/database';
+import defineReviewModel from '../../../models/Review';
+import defineReplyModel from '../../../models/Reply';
+import defineVideoModel from '../../../models/Video';
 import fs from 'fs';
 import path from 'path';
 
-const apiRoute = createRouter()
-    .delete((req, res) => {
-        const { filename } = req.query
-        if (!filename) {
-            return res.status(400).json({ error: 'Filename is required' });
-        }
+const Video = defineVideoModel(sequelize);
+const Review = defineReviewModel(sequelize);
+const Reply = defineReplyModel(sequelize);
 
-        const filePath = path.join(process.cwd(), 'renderer/public/videos', filename);
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to delete video' });
-            }
-            res.status(200).json({ message: 'Video deleted successfully' });
-        });
-    })
-    .handler();
+Video.hasMany(Review, { foreignKey: 'videoId', as: 'reviews' });
+Review.belongsTo(Video, { foreignKey: 'videoId', as: 'video' });
+Review.hasMany(Reply, { foreignKey: 'reviewId', as: 'replies' });
+Reply.belongsTo(Review, { foreignKey: 'reviewId', as: 'review' });
 
-export default apiRoute;
+const handler = nextConnect();
 
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
+handler.delete(async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: 'Video ID is required.' });
+  }
+
+  try {
+    const video = await Video.findByPk(id);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found.' });
+    }
+
+    const videoFilePath = path.join(process.cwd(), 'renderer/public/uploads', video.filename);
+    const thumbnailFilePath = path.join(process.cwd(), 'renderer/public/uploads', video.thumbnail);
+
+    await video.destroy();
+
+    fs.unlink(videoFilePath, (err) => {
+      if (err) {
+        console.error('Error deleting video file:', err);
+      } else {
+        console.log('Video file deleted:', videoFilePath);
+      }
+    });
+
+    fs.unlink(thumbnailFilePath, (err) => {
+      if (err) {
+        console.error('Error deleting thumbnail file:', err);
+      } else {
+        console.log('Thumbnail file deleted:', thumbnailFilePath);
+      }
+    });
+
+    res.status(200).json({ message: 'Video and associated files deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    res.status(500).json({ error: 'Error deleting video.' });
+  }
+});
+
+export default handler;

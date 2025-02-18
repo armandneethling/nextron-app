@@ -1,27 +1,25 @@
-import React from "react";
+import React from 'react';
 
-const VideoDisplay = ({ videoSrc, onDelete }) => {
-    const handleDelete = () => {
-        if (onDelete) {
-            onDelete(videoSrc);
-        }
+const VideoDisplay = ({ video, onDelete }) => {
+  if (!video) {
+    return <p>No video uploaded</p>;
+  }
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(video.id);
     }
+  };
 
-    return (
-        <div>
-            {videoSrc ? (
-                <div>
-                    <video controls>
-                        <source src={`/videos/${videoSrc}`} type="video/mp4" />
-                        Your browser does not support the video tag.
-                    </video>
-                    <button onClick={handleDelete}>Delete</button>
-                </div>
-            ) : (
-                <p>No video uploaded</p>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      <video controls>
+        <source src={`/uploads/${video.filename}`} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <button onClick={handleDelete}>Delete</button>
+    </div>
+  );
 };
 
 export default VideoDisplay;

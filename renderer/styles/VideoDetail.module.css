@@ -1,0 +1,236 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-unit);
+  margin-top: calc(var(--spacing-unit) * 5);
+  color: var(--text-color);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: var(--spacing-unit);
+  color: var(--primary-color);
+}
+
+.description {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-unit);
+}
+
+.infoTitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-color);
+  font-weight: 700;
+  margin-bottom: var(--spacing-unit);
+}
+
+.subHeader {
+  font-size: var(--font-size-lg);
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+}
+
+.info {
+  font-size: var(--font-size-base);
+  color: white;
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+  padding-left: 15px;
+  line-height: 1.5;
+}
+
+.thumbnailContainer {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 50%;
+  margin: 0 auto;
+  border: 2px solid var(--primary-color);
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videoContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  margin-bottom: var(--spacing-unit);
+  overflow: hidden;
+  background-color: #000;
+}
+
+.videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.button {
+  font-family: 'Open Sans', sans-serif;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background-color: var(--info-color);
+}
+
+.btnSecondary {
+  background-color: var(--secondary-color);
+  color: #fff;
+}
+
+.btnSecondary:hover {
+  background-color: var(--info-color);
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  margin-bottom: var(--spacing-unit);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.input:focus {
+  border-color: var(--info-color);
+  box-shadow: 0 0 8px rgba(19, 137, 150, 0.5);
+  outline: none;
+}
+
+.textarea {
+  resize: vertical;
+  height: 120px;
+}
+
+.inputFocus:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.reviewsSection {
+  margin-top: calc(var(--spacing-unit) * 2);
+}
+
+.review {
+  margin-bottom: calc(var(--spacing-unit) * 2);
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: var(--secondary-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reviewActions {
+  margin-top: var(--spacing-unit);
+  display: flex;
+  gap: 10px;
+}
+
+.reply {
+  margin-top: var(--spacing-unit);
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: var(--background-color);
+}
+
+.replyForm {
+  margin-top: var(--spacing-unit);
+}
+
+.reviewForm {
+  margin-top: calc(var(--spacing-unit) * 3);
+}
+
+.reviewTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--spacing-unit);
+  color: var(--color1);
+}
+
+.reviewFormTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--spacing-unit);
+  color: var(--color2);
+}
+
+.adminReply {
+  margin-top: var(--spacing-unit);
+  margin-left: 20px;
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: #e8f4fc;
+  border-left: 4px solid var(--primary-color);
+}
+
+.adminReply p {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.reviewEditForm {
+  margin-top: var(--spacing-unit);
+  padding: var(--spacing-unit);
+  border-radius: 8px;
+  background-color: var(--background-color);
+}
+
+.replyActions {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--spacing-unit);
+}
+
+.alert {
+  text-align: center;
+  margin-top: 0;
+  flex: 1;
+}
+
+.alert--success {
+  color: green;
+}
+
+.alert--error {
+  color: red;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-unit);
+    padding-top: 80px;
+  }
+}
