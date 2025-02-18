@@ -9,7 +9,8 @@ const VideoDetails = () => {
   const { id } = router.query;
   const [video, setVideo] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [userId, setUserId] = useState('user-123');
+  const [userId, setUserId] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [replyComment, setReplyComment] = useState('');
@@ -17,6 +18,24 @@ const VideoDetails = () => {
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const storedUserId = localStorage.getItem('userId');
+        const storedUserRole = localStorage.getItem('userRole');
+        
+        if (storedUserId && storedUserRole) {
+          setUserId(storedUserId);
+          setUserRole(storedUserRole);
+        } else {
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUser();
+
     if (id) {
       const fetchVideo = async () => {
         try {
@@ -34,7 +53,7 @@ const VideoDetails = () => {
       };
       fetchVideo();
     }
-  }, [id]);
+  }, [id, router]);
 
   const handleReviewSubmit = async () => {
     if (newRating === 0 || !newComment.trim()) {
@@ -145,18 +164,22 @@ const VideoDetails = () => {
       return;
     }
 
+    const replyData = {
+      videoId: video.id,
+      reviewId,
+      userId,
+      comment: replyComment.trim(),
+    };
+
+    console.log('Reply Data:', replyData);
+
     try {
       const response = await fetch('/api/reviews/reply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          videoId: video.id,
-          reviewId,
-          userId,
-          comment: replyComment.trim(),
-        }),
+        body: JSON.stringify(replyData),
       });
 
       if (response.ok) {
@@ -263,7 +286,7 @@ const VideoDetails = () => {
                     ))}
                   </div>
                 )}
-                {(userId === video.uploaderId || userId === 'admin') && (
+                {(userRole === 'admin') && (
                   <div className={styles.replyForm}>
                     <textarea
                       className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
@@ -280,25 +303,27 @@ const VideoDetails = () => {
             <p>No reviews yet.</p>
           )}
 
-          <div className={styles.reviewForm}>
-            <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
-            <ReactStarsWrapper
-              count={5}
-              value={newRating}
-              onChange={(rating) => setNewRating(rating)}
-              size={24}
-              activeColor="#ffd700"
-            />
-            <textarea
-              className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your review here..."
-            />
-            <button className={`${styles.button} ${styles.btnPrimary}`} onClick={handleReviewSubmit}>
-              {editingReviewId ? 'Update Review' : 'Submit Review'}
-            </button>
-          </div>
+          {userRole && (
+            <div className={styles.reviewForm}>
+              <h3 className={styles.reviewFormTitle}>{editingReviewId ? 'Edit Your Review' : 'Write a Review'}</h3>
+              <ReactStarsWrapper
+                count={5}
+                value={newRating}
+                onChange={(rating) => setNewRating(rating)}
+                size={24}
+                activeColor="#ffd700"
+              />
+              <textarea
+                className={`${styles.input} ${styles.textarea} ${styles.inputFocus}`}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write your review here..."
+              />
+              <button className={`${styles.button} ${styles.btnPrimary}`} onClick={handleReviewSubmit}>
+                {editingReviewId ? 'Update Review' : 'Submit Review'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

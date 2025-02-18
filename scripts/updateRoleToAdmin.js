@@ -4,6 +4,11 @@ const defineUserModel = require('../models/User');
 const User = defineUserModel(sequelize);
 
 const updateRoleToAdminById = async (userId) => {
+  if (!userId) {
+    console.error('No user ID provided.');
+    return;
+  }
+
   try {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
@@ -20,7 +25,8 @@ const updateRoleToAdminById = async (userId) => {
     console.error('Error updating user role:', error);
   } finally {
     await sequelize.close();
+    console.log('Database connection closed.');
   }
 };
 
-updateRoleToAdminById('');
+updateRoleToAdminById('2ea85f59-811d-4ff5-bcb3-799b28d9d709');
